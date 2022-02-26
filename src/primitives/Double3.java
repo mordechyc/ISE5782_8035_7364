@@ -1,9 +1,9 @@
 /**
  * 
  */
-package primitive;
+package primitives;
 
-import static primitive.Util.*;
+import static primitives.Util.*;
 
 /**
  * This class will serve all primitive classes based on three numbers
