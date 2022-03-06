@@ -15,11 +15,12 @@ class PointTest {
      */
     @Test
     public void testAdd() {
-        Point p = new Point(1,2,3);
-
+        Point p1 = new Point(1,2,3);
         // ============ Equivalence Partitions Tests ==============
-
-
+        Vector v=new Vector(1,2,3);
+        Point newP=new Point(2,4,6);
+        //TC01: Test that the result of add is proper
+        assertEquals(newP,p1.add(v),"add() got wrong result ");
 
         // =============== Boundary Values Tests ==================
 
@@ -30,7 +31,13 @@ class PointTest {
      * Test method for {@link primitives.Point#subtract(primitives.Point)}.
      */
     @Test
-    void subtract() {
+    public void subtract() {
+        Point p1 = new Point(1,2,3);
+        // ============ Equivalence Partitions Tests ==============
+        Vector v=new Vector(1,2,3);
+        Point newP=new Point(0,0,0);
+        //TC01: Test that the result of substract is proper
+        assertEquals(newP,p1.subtract(v),"substract() got wrong result ");
     }
 
     /**
@@ -38,6 +45,13 @@ class PointTest {
      */
     @Test
     void distanceSquared() {
+        Point p1 = new Point(1,1,2);
+        Point p2 = new Point(1,4,6);
+
+        // ============ Equivalence Partitions Tests ==============
+        double newDistanceSquered=25;
+        //TC01: Test that the result of substract is proper
+        assertEquals(p1.distanceSquared(p2),newDistanceSquered,"distanceSquared() got wrong result ");
     }
 
     /**
@@ -45,5 +59,12 @@ class PointTest {
      */
     @Test
     void distance() {
+        Point p1 = new Point(1,1,2);
+        Point p2 = new Point(1,4,6);
+
+        // ============ Equivalence Partitions Tests ==============
+        double newDistanceSquered=5;
+        //TC01: Test that the result of substract is proper
+        assertEquals(p1.distance(p2),newDistanceSquered,"distance() got wrong result ");
     }
 }
