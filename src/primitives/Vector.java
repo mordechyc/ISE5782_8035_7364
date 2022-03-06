@@ -17,7 +17,7 @@ public class Vector extends Point {
     }
 
     /**
-     *     A constructor that calls the super constructor and checks if the vector is zero.
+     *     A constructor that calls the super constructor and checks if the vector is  equal zero then throw exaption.
      * @param xyz
      */
     public Vector(Double3 xyz) {
