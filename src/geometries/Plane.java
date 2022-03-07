@@ -5,8 +5,8 @@ import primitives.Vector;
 
 public class Plane implements Geometry {
 
-    private Point q0;
-    private Vector normal;
+    final private Point q0;
+    final private Vector normal;
 
     /**
      * constractor
@@ -44,7 +44,7 @@ public class Plane implements Geometry {
      * @return The normal vector of the plane.
      */
     public Vector getNormal() {
-        return normal.normalize();
+        return normal;
     }
 
     /**
