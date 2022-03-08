@@ -1,6 +1,8 @@
 package primitives;
 
 import org.junit.jupiter.api.Test;
+import primitives.Point;
+import primitives.Vector;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,7 +16,7 @@ class PointTest {
      * Test method for {@link primitives.Point#add(primitives.Vector)}.
      */
     @Test
-    public void testAdd() {
+    public void Add() {
         Point p1 = new Point(1,2,3);
         // ============ Equivalence Partitions Tests ==============
         Vector v=new Vector(1,2,3);
@@ -32,12 +34,12 @@ class PointTest {
      */
     @Test
     public void subtract() {
-        Point p1 = new Point(1,2,3);
+        Point p1 = new Point(2,3,4);
+        Point p2=new Point(1,2,3);
         // ============ Equivalence Partitions Tests ==============
-        Vector v=new Vector(1,2,3);
-        Point newP=new Point(0,0,0);
+        Vector v=new Vector(1,1,1);
         //TC01: Test that the result of substract is proper
-        assertEquals(newP,p1.subtract(v),"substract() got wrong result ");
+        assertEquals(v,p1.subtract(p2),"substract() got wrong result ");
     }
 
     /**

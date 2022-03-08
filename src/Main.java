@@ -5,8 +5,11 @@
 import primitives.*;
 import static java.lang.System.out;
 import static primitives.Util.*;
-
 /**
+ * mordachay vector test tringle
+ * avichay plane testv sphair tube
+**/
+ /**
  * Test program for the 1st stage
  *
  * @author Dan Zilberstein

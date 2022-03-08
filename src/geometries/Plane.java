@@ -16,7 +16,18 @@ public class Plane implements Geometry {
      */
     public Plane(Point vertex, Point vertex1, Point vertex2) {
         this.q0 = vertex;
-        this.normal = null;
+        try {
+            Vector U = vertex1.subtract(vertex);
+            Vector V = vertex2.subtract(vertex);
+
+            // if UxV = (0,0,0) this Plane not create because all 3 point on the same line
+            Vector N = U.crossProduct(V);
+            N.normalize();
+
+            this.normal= N;
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("can not create a plane with all 3 point on the same line");
+        }
     }
 
     /**
@@ -43,9 +54,6 @@ public class Plane implements Geometry {
      *
      * @return The normal vector of the plane.
      */
-    public Vector getNormal() {
-        return normal;
-    }
 
     /**
      * Returns the normal vector at the given point
