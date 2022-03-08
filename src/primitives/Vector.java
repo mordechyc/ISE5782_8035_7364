@@ -1,14 +1,13 @@
 package primitives;
 
-import static primitives.Util.isZero;
 
 public class Vector extends Point {
 
     /**
      *     A constructor that calls the super constructor and checks if the vector is zero.
-     * @param x
-     * @param y
-     * @param z
+     * @param x x
+     * @param y y
+     * @param z z
      */
     public Vector(double x, double y, double z) {
         super(x, y, z);
@@ -18,7 +17,7 @@ public class Vector extends Point {
 
     /**
      *     A constructor that calls the super constructor and checks if the vector is  equal zero then throw exaption.
-     * @param xyz
+     * @param xyz xyz
      */
     public Vector(Double3 xyz) {
         super(xyz);
@@ -51,8 +50,8 @@ public class Vector extends Point {
     /**
      * method creates new point by multipltying two points
      *
-     * @param v3
-     * @return
+     * @param v3 v3
+     * @return new point by multipltying two points
      */
     public double dotProduct(Vector v3) {
         Double3 abc = xyz.product(v3.xyz);
@@ -62,8 +61,8 @@ public class Vector extends Point {
     /**
      * ethod that multiplies two vectors to recieve a vector that is vertical to both vectors
      *
-     * @param v2
-     * @return
+     * @param v2 v2
+     * @return multiplies two vectors to recieve a vector that is vertical to both vectors
      */
     public Vector crossProduct(Vector v2) {
         double i = xyz.d2 * v2.xyz.d3 - xyz.d3 * v2.xyz.d2;
@@ -84,7 +83,7 @@ public class Vector extends Point {
     /**
      * alculates and returns the vectors length
      *
-     * @return
+     * @return vectors length
      */
     public double length() {
         return Math.sqrt(lengthSquared());

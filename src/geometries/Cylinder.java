@@ -11,8 +11,8 @@ public class Cylinder extends Tube {
     /**
      * constaractor
      *
-     * @param axisRay
-     * @param radius
+     * @param axisRay //Ray that goes through the height of tube
+     * @param radius /Radius of tube
      */
     public Cylinder(Ray axisRay, double radius) {
         super(axisRay, radius);

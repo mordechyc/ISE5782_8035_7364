@@ -12,8 +12,8 @@ public class Tube implements Geometry {
     /**
      * A constructor
      *
-     * @param axisRay
-     * @param radius
+     * @param axisRay //Ray that goes through the height of tube
+     * @param radius /Radius of tube
      */
     public Tube(Ray axisRay, double radius) {
         this.axisRay = axisRay;
@@ -43,10 +43,9 @@ public class Tube implements Geometry {
     }
 
     /**
-     * Returns the normal vector at the given point
-     *
-     * @param p The point to evaluate the normal at.
-     * @return Nothing.
+     * get normal of point on tube
+     * @param p Point on tube
+     * @return Normal in point
      */
     @Override
     public Vector getNormal(Point p) {

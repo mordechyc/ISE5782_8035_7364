@@ -16,7 +16,7 @@ class PointTest {
      * Test method for {@link primitives.Point#add(primitives.Vector)}.
      */
     @Test
-    public void Add() {
+    public void testAdd() {
         Point p1 = new Point(1,2,3);
         // ============ Equivalence Partitions Tests ==============
         Vector v=new Vector(1,2,3);
@@ -33,7 +33,7 @@ class PointTest {
      * Test method for {@link primitives.Point#subtract(primitives.Point)}.
      */
     @Test
-    public void subtract() {
+    public void testSubtract() {
         Point p1 = new Point(2,3,4);
         Point p2=new Point(1,2,3);
         // ============ Equivalence Partitions Tests ==============
@@ -46,7 +46,7 @@ class PointTest {
      * Test method for {@link primitives.Point#distanceSquared(primitives.Point)}.
      */
     @Test
-    void distanceSquared() {
+    void testDistanceSquared() {
         Point p1 = new Point(1,1,2);
         Point p2 = new Point(1,4,6);
 
@@ -60,7 +60,7 @@ class PointTest {
      * Test method for {@link primitives.Point#distance(primitives.Point)}.
      */
     @Test
-    void distance() {
+    void testDistance() {
         Point p1 = new Point(1,1,2);
         Point p2 = new Point(1,4,6);
 
