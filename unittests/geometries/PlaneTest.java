@@ -30,7 +30,7 @@ class PlaneTest {
 
     @Test
     void getNormal() {
-        assertEquals(1, plane.getNormal(null).length());
+        assertEquals(3, plane.getNormal(null).length());
     }
     @Test
     void getNormal2() {
