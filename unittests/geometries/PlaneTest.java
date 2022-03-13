@@ -10,8 +10,9 @@ class PlaneTest {
             new Point(0, 0, 1),
             new Point(0, 2, 0),
             new Point(1, 0, 0));
+
     /**
-     *test for {@link geometries.Plane#Plane(Point, Point, Point)}.
+     * test for {@link geometries.Plane#Plane(Point, Point, Point)}.
      */
     @Test
     void testPlane() {
@@ -24,25 +25,24 @@ class PlaneTest {
         } catch (IllegalArgumentException e) {
         }
     }
-    @Test
-    void getQ0() {
-    }
+
 
     @Test
     void getNormal() {
-        assertEquals(3, plane.getNormal(null).length());
+        assertEquals(1, plane.getNormal(null).length());
     }
+
     @Test
     void getNormal2() {
         Plane p1 = new Plane(
-                new Point(0,1,0),
-                new Point(1,0,0),
-                new Point(0,0,1));
+                new Point(0, 1, 0),
+                new Point(1, 0, 0),
+                new Point(0, 0, 1));
 
         Plane p2 = new Plane(
-                new Point(1,0,0),
-                new Point(0,0,1),
-                new Point(0,1,0));
+                new Point(1, 0, 0),
+                new Point(0, 0, 1),
+                new Point(0, 1, 0));
 
         assertEquals(p1.getNormal(null), p2.getNormal(null));
     }

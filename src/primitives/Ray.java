@@ -4,23 +4,33 @@ import java.util.Objects;
 
 public class Ray {
 
-    private Point p0;
-    private Vector dir;
+    private final Point p0;
+    private final Vector dir;
 
     /**
      * A constructor
-     * @param p0
-     * @param dir
+     *
+     * @param p0 p0
+     * @param dir dir
      */
     public Ray(Point p0, Vector dir) {
         this.p0 = p0;
         this.dir = dir.normalize();
     }
 
+    public Point getP0() {
+        return p0;
+    }
+
+    public Vector getDir() {
+        return dir;
+    }
+
+
     /**
      * compares ray with another object to see if equal
-     * @param o
-     * @return
+     *
+     * @param o o
      */
     @Override
     public boolean equals(Object o) {

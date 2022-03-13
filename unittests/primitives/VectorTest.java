@@ -8,6 +8,7 @@ import static primitives.Util.isZero;
 
 /**
  * Unit tests for primitives.Vector class
+ *
  * @author Mordechy Cohen
  */
 class VectorTest {
@@ -26,12 +27,13 @@ class VectorTest {
         //TC01: Test that the result of add is proper
         assertEquals(v1.add(v2), new Vector(-1, -2, -3), "add() got wrong result ");
 
-        // TC02: Test to check if throw exception for ZERO vector
+        // TC02: Test to check if throw exception for  ZERO vector
         assertThrows(IllegalArgumentException.class, () -> v1.add(new Vector(-1, -2, -3)), "add() for ZERO vector does not throw an exception");
 
         // =============== Boundary Values Tests ==================
 
     }
+
 
     /**
      * Test method for {@link primitives.Vector#scale(double)}.

@@ -7,18 +7,20 @@ public class Point {
     protected Double3 xyz;
 
     /**
-     *     This is a constructor.
-      * @param xyz
+     * This is a constructor.
+     *
+     * @param xyz xyz
      */
     public Point(Double3 xyz) {
         this.xyz = xyz;
     }
 
     /**
-     *     This is a constructor with parms.
-      * @param x
-     * @param y
-     * @param z
+     * This is a constructor with parms.
+     *
+     * @param x x
+     * @param y y
+     * @param z z
      */
     public Point(double x, double y, double z) {
         this.xyz = new Double3(x, y, z);
@@ -67,7 +69,7 @@ public class Point {
     public double distanceSquared(Point p) {
         return (((p.xyz.d1 - this.xyz.d1) * (p.xyz.d1 - this.xyz.d1)) +
                 ((p.xyz.d2 - this.xyz.d2) * (p.xyz.d2 - this.xyz.d2) +
-                (p.xyz.d3 - this.xyz.d3) * (p.xyz.d3 - this.xyz.d3)));
+                        (p.xyz.d3 - this.xyz.d3) * (p.xyz.d3 - this.xyz.d3)));
     }
 
     /**

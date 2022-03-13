@@ -10,9 +10,10 @@ public class Plane implements Geometry {
 
     /**
      * constractor
-     * @param vertex
-     * @param vertex1
-     * @param vertex2
+     *
+     * @param vertex vertex
+     * @param vertex1 vertex1
+     * @param vertex2 vertex2
      */
     public Plane(Point vertex, Point vertex1, Point vertex2) {
         this.q0 = vertex;
@@ -22,9 +23,9 @@ public class Plane implements Geometry {
 
             // if UxV = (0,0,0) this Plane not create because all 3 point on the same line
             Vector N = U.crossProduct(V);
-            N.normalize();
 
-            this.normal= N;
+
+            this.normal = N.normalize();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("can not create a plane with all 3 point on the same line");
         }
@@ -32,8 +33,9 @@ public class Plane implements Geometry {
 
     /**
      * constarctor
-     * @param p
-     * @param v
+     *
+     * @param p p
+     * @param v v
      */
     public Plane(Point p, Vector v) {
         this.q0 = p;

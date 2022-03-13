@@ -13,7 +13,7 @@ public class Tube implements Geometry {
      * A constructor
      *
      * @param axisRay //Ray that goes through the height of tube
-     * @param radius /Radius of tube
+     * @param radius  /Radius of tube
      */
     public Tube(Ray axisRay, double radius) {
         this.axisRay = axisRay;
@@ -44,12 +44,28 @@ public class Tube implements Geometry {
 
     /**
      * get normal of point on tube
-     * @param p Point on tube
+     *
+     * @param point Point on tube
      * @return Normal in point
      */
     @Override
-    public Vector getNormal(Point p) {
-        return null;
+    public Vector getNormal(Point point) {
+        //t = v∙(p − p0)
+        //o = p0 + t∙v
+        //n = normalize(P - o)
+        Vector p0_p = point.subtract(axisRay.getP0());
+        Vector v = axisRay.getDir();
+        double t = v.dotProduct(p0_p);
+
+        //if point is on rim then dot product will return 0, in which case the normal is p0_p
+        if (t == 0) {
+            return p0_p.normalize();
+        }
+
+        v = v.scale(t);
+        Point o = axisRay.getP0().add(v);
+        Vector o_p = point.subtract(o);
+        return o_p.normalize();
     }
 
     /**

@@ -4,7 +4,8 @@ package primitives;
 public class Vector extends Point {
 
     /**
-     *     A constructor that calls the super constructor and checks if the vector is zero.
+     * A constructor that calls the super constructor and checks if the vector is zero.
+     *
      * @param x x
      * @param y y
      * @param z z
@@ -16,7 +17,8 @@ public class Vector extends Point {
     }
 
     /**
-     *     A constructor that calls the super constructor and checks if the vector is  equal zero then throw exaption.
+     * A constructor that calls the super constructor and checks if the vector is  equal zero then throw exaption.
+     *
      * @param xyz xyz
      */
     public Vector(Double3 xyz) {
@@ -32,9 +34,8 @@ public class Vector extends Point {
      * @return A new Vector object.
      */
     @Override
-    public Point add(Vector vector) {
+    public Vector add(Vector vector) {
         return new Vector(this.xyz.add(vector.xyz));
-        //return super.add(vector);
     }
 
     /**
@@ -106,7 +107,7 @@ public class Vector extends Point {
     @Override
     public String toString() {
         return "Vector{" +
-                super.toString()+
+                super.toString() +
                 '}';
     }
 

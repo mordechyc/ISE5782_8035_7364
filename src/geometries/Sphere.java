@@ -3,19 +3,20 @@ package geometries;
 import primitives.Point;
 import primitives.Vector;
 
-public class Sphere implements Geometry{
+public class Sphere implements Geometry {
 
-    private Point center;
-    private double radius;
+    private final Point center;
+    private final double radius;
 
     /**
      * constractor
-     * @param center
-     * @param radius
+     *
+     * @param center center
+     * @param radius radius
      */
     public Sphere(Point center, double radius) {
         this.center = center;
-        if (radius<=0)
+        if (radius <= 0)
             throw new IllegalArgumentException("radius must be bigger then zero");
         this.radius = radius;
     }
@@ -41,12 +42,14 @@ public class Sphere implements Geometry{
     /**
      * Returns the normal vector
      *
-     * @param p
-     * @return Nothing.
+     * @param point point
+     * @return normal
      */
     @Override
-    public Vector getNormal(Point p) {
-        return null;
+    public Vector getNormal(Point point) {
+        //normal = normalize(point - center)
+        Vector o_p = point.subtract(center);
+        return o_p.normalize();
     }
 
     /**
