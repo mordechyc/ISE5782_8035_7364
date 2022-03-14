@@ -111,15 +111,4 @@ public class Vector extends Point {
                 '}';
     }
 
-    /**
-     * Returns true if the object is equal to this object
-     *
-     * @param o the object to compare against this object for equality.
-     * @return The return type is boolean.
-     */
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
-    }
-
 }
