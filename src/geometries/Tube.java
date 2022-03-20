@@ -4,6 +4,8 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.List;
+
 public class Tube implements Geometry {
 
     protected Ray axisRay;
@@ -66,6 +68,11 @@ public class Tube implements Geometry {
         Point o = axisRay.getP0().add(v);
         Vector o_p = point.subtract(o);
         return o_p.normalize();
+    }
+
+    @Override
+    public List<Point> findIntsersections(Ray ray) {
+        return null;
     }
 
     /**
