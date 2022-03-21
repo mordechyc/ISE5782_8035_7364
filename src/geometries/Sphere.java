@@ -4,7 +4,11 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.LinkedList;
 import java.util.List;
+
+import static primitives.Util.alignZero;
+
 
 public class Sphere implements Geometry {
 
@@ -55,9 +59,52 @@ public class Sphere implements Geometry {
         return o_p.normalize();
     }
 
+    /**
+     * Find the intersection points of a ray with a sphere
+     *
+     * @param ray The ray to check for intersections with.
+     * @return A list of points.
+     */
     @Override
     public List<Point> findIntsersections(Ray ray) {
-        return null;
+        List<Point> intsersections = new LinkedList<Point>();
+
+        //Save ray starting point and direction
+        Point p0 = ray.getP0();
+        Vector v = ray.getDir();
+
+        double d = 0; //d = distance
+        double tm = 0;
+        if (!p0.equals(center)) {
+            //u is the vector from base of ray to center of sphere
+            Vector u = center.subtract(p0);
+            tm = v.dotProduct(u);
+            //calculate distance
+            d = alignZero(Math.sqrt(u.lengthSquared() - Math.pow(tm, 2)));
+            //if distance os larger than radius of sphere clearly no intersections exist
+        }
+        // להשלים
+        else {
+
+        }
+
+        //if distance os larger than radius of sphere clearly no intersections exist
+        if (d >= radius) {
+            return null;
+        }
+
+        double th = alignZero(Math.sqrt(Math.pow(radius, 2) - Math.pow(d, 2)));
+        double t1 = tm - th;
+        double t2 = tm + th;
+        Point p1 = p0.add(v.scale(t1));
+        Point p2 = p0.add(v.scale(t2));
+        if (alignZero((center.subtract(p1)).lengthSquared() - Math.pow(radius, 2)) == 0) {
+            intsersections.add(p1);
+        }
+        if (alignZero((center.subtract(p2)).lengthSquared() - Math.pow(radius, 2)) == 0) {
+            intsersections.add(p2);
+        }
+        return intsersections;
     }
 
     /**

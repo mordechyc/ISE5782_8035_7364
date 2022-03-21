@@ -26,6 +26,17 @@ public class Ray {
         return dir;
     }
 
+    public Point getPoint(double t) {
+        Vector tv = null;
+        try {
+            tv = dir.scale(t);
+        } catch (Exception e) {
+            return p0;
+        }
+        Point P = p0.add(tv);
+        return P;
+    }
+
 
     /**
      * compares ray with another object to see if equal

@@ -4,7 +4,11 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.LinkedList;
 import java.util.List;
+
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
 
 public class Plane implements Geometry {
 
@@ -74,10 +78,46 @@ public class Plane implements Geometry {
         return normal;
     }
 
+    /**
+     * If the ray starts from a point on the plane, then no intersections exist. If the ray is parallel to the plane, then
+     * no intersections exist. If the ray intersects the plane, then the intersection point is returned
+     *
+     * @param ray The ray that we're checking for intersections with the plane.
+     * @return A list of points.
+     */
     @Override
     public List<Point> findIntsersections(Ray ray) {
+        List<Point> intsersections = new LinkedList<Point>();
+        //save beginning point of ray
+        Point p0 = ray.getP0();
+        //if ray starts from point on plane then no intersections exist so we can return null with no further calculations
+        if (q0.equals(p0)) {
+            return null;
+        }
+
+        double denominatorDot = alignZero(normal.dotProduct(ray.getDir()));
+
+        //if denominatorDot is 0 that means ray is parallel to plane (which means no intersections exist), so we return null
+        if (isZero(denominatorDot)) {
+            return null;
+        }
+
+        double numeratorDot = normal.dotProduct(q0.subtract(p0));
+
+        double t = alignZero(numeratorDot / denominatorDot);
+
+        if (t <= 0) {
+            return null;
+        }
+
+        Point P = ray.getPoint(t);
+        if (P != null) {
+            intsersections.add(P);
+            return intsersections;
+        }
         return null;
     }
+
 
     /**
      * The function returns a string representation of the Plane object
