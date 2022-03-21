@@ -108,5 +108,6 @@ class PlaneTest {
         result = plane.findIntsersections(new Ray(new Point(2, 2, 2),
                 new Vector(0, 1, 1)));
         assertNull(result, "Wrong number of points");
+
     }
 }
