@@ -50,7 +50,6 @@ public class Tube implements Geometry {
      * @param point Point on tube
      * @return Normal in point
      */
-    @Override
     public Vector getNormal(Point point) {
         //t = v∙(p − p0)
         //o = p0 + t∙v
@@ -80,7 +79,6 @@ public class Tube implements Geometry {
      *
      * @return The string representation of the object.
      */
-    @Override
     public String toString() {
         return "Tube{" +
                 "axisRay=" + axisRay +

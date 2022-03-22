@@ -36,7 +36,6 @@ public class Cylinder extends Tube {
      * @param point The point to evaluate the normal at.
      * @return The normal vector of the plane.
      */
-    @Override
     public Vector getNormal(Point point) {
         //checks if point is on base of cylinder (bottom circle)
         if (point.distance(axisRay.getP0()) <= radius)
@@ -62,7 +61,6 @@ public class Cylinder extends Tube {
      *
      * @return The toString() method returns a string representation of the Cylinder object.
      */
-    @Override
     public String toString() {
         return "Cylinder{" +
                 "height=" + height +

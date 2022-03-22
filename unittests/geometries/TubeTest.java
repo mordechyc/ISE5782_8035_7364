@@ -17,7 +17,7 @@ class TubeTest {
         // ============ Equivalence Partitions Tests ==============
         //test normal for point on tube
         Tube tb = new Tube(new Ray(new Point(1, 0, 0), new Vector(0, 1, 0)), 1d);
-        Vector temp = tb.getNormal(new Point(2, 1, 0));
+        Vector temp = tb.getNormal (new Point(2, 1, 0));//new point(1,0,0)
         assertEquals(temp, new Vector(1, 0, 0), "getNormal() is bad");
 
         // =============== Boundary Values Tests ==================

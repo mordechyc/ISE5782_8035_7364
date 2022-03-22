@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Point {
 
-    protected Double3 xyz;
+    final Double3 xyz;
 
     /**
      * This is a constructor.

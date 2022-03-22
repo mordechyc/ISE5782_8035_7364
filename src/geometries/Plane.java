@@ -24,18 +24,12 @@ public class Plane implements Geometry {
      */
     public Plane(Point vertex, Point vertex1, Point vertex2) {
         this.q0 = vertex;
-        try {
-            Vector U = vertex1.subtract(vertex);
-            Vector V = vertex2.subtract(vertex);
+        Vector U = vertex1.subtract(vertex);
+        Vector V = vertex2.subtract(vertex);
 
-            // if UxV = (0,0,0) this Plane not create because all 3 point on the same line
-            Vector N = U.crossProduct(V);
-
-
-            this.normal = N.normalize();
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("can not create a plane with all 3 point on the same line");
-        }
+        // if UxV = (0,0,0) this Plane not create because all 3 point on the same line
+        Vector N = U.crossProduct(V);
+        this.normal = N.normalize();
     }
 
     /**
@@ -73,7 +67,6 @@ public class Plane implements Geometry {
      * @param p The point to get the normal at.
      * @return Nothing.
      */
-    @Override
     public Vector getNormal(Point p) {
         return normal;
     }
@@ -124,7 +117,6 @@ public class Plane implements Geometry {
      *
      * @return The string representation of the Plane object.
      */
-    @Override
     public String toString() {
         return "Plane{" +
                 "q0=" + q0 +

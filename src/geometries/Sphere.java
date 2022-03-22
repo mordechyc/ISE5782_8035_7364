@@ -52,7 +52,6 @@ public class Sphere implements Geometry {
      * @param point point
      * @return normal
      */
-    @Override
     public Vector getNormal(Point point) {
         //normal = normalize(point - center)
         Vector o_p = point.subtract(center);
@@ -85,8 +84,7 @@ public class Sphere implements Geometry {
         }
         // להשלים
         else {
-
-        }
+            throw new IllegalArgumentException("ray p0 cannot be equals to the center of the sphere");        }
 
         //if distance os larger than radius of sphere clearly no intersections exist
         if (d >= radius) {
@@ -112,7 +110,6 @@ public class Sphere implements Geometry {
      *
      * @return The string representation of the object.
      */
-    @Override
     public String toString() {
         return "Sphere{" +
                 "center=" + center +
