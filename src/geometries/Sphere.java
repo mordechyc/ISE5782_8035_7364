@@ -72,37 +72,92 @@ public class Sphere implements Geometry {
         Point p0 = ray.getP0();
         Vector v = ray.getDir();
 
-        double d = 0; //d = distance
         double tm = 0;
+        double d = 0; //d = distance
+        //if ray does not start in center of sphere
         if (!p0.equals(center)) {
             //u is the vector from base of ray to center of sphere
             Vector u = center.subtract(p0);
-            tm = v.dotProduct(u);
+
+            //find dot product of u and ray direction
+            tm = u.dotProduct(v);
+
             //calculate distance
-            d = alignZero(Math.sqrt(u.lengthSquared() - Math.pow(tm, 2)));
-            //if distance os larger than radius of sphere clearly no intersections exist
+            d = alignZero(Math.sqrt(u.lengthSquared() - tm * tm));
         }
-        // להשלים
-        else {
-            throw new IllegalArgumentException("ray p0 cannot be equals to the center of the sphere");        }
 
         //if distance os larger than radius of sphere clearly no intersections exist
         if (d >= radius) {
             return null;
         }
 
-        double th = alignZero(Math.sqrt(Math.pow(radius, 2) - Math.pow(d, 2)));
+        double th = alignZero(Math.sqrt(radius * radius - d * d));
+
         double t1 = tm - th;
         double t2 = tm + th;
-        Point p1 = p0.add(v.scale(t1));
-        Point p2 = p0.add(v.scale(t2));
-        if (alignZero((center.subtract(p1)).lengthSquared() - Math.pow(radius, 2)) == 0) {
+
+        if (t1 > 0 && t2 > 0) {
+            Point p1 = p0.add(v.scale(t1));
+            Point p2 = p0.add(v.scale(t2));
             intsersections.add(p1);
-        }
-        if (alignZero((center.subtract(p2)).lengthSquared() - Math.pow(radius, 2)) == 0) {
             intsersections.add(p2);
+
+            return intsersections;
         }
-        return intsersections;
+        if (t1 > 0) {
+            Point p1 = p0.add(v.scale(t1));
+            intsersections.add(p1);
+            return  intsersections;
+        }
+        if (t2 > 0) {
+            Point p2 = p0.add(v.scale(t2));
+            intsersections.add(p2);
+            return  intsersections;
+        }
+        return null;
+
+        //-----------------------------------------------------------------------------------
+//        List<Point> intsersections = new LinkedList<Point>();
+//
+//        //Save ray starting point and direction
+//        Point p0 = ray.getP0();
+//        Vector v = ray.getDir();
+//
+//        double d = 0; //d = distance
+//        double tm = 0;
+//        if (!p0.equals(center)) {
+//            //u is the vector from base of ray to center of sphere
+//            Vector u = center.subtract(p0);
+//            tm = v.dotProduct(u);
+//            //calculate distance
+//            d = alignZero(Math.sqrt(u.lengthSquared() - Math.pow(tm, 2)));
+//            //if distance os larger than radius of sphere clearly no intersections exist
+//        }
+//        // להשלים
+//        else {
+//            throw new IllegalArgumentException("ray p0 cannot be equals to the center of the sphere");        }
+//
+//        //if distance os larger than radius of sphere clearly no intersections exist
+//        if (d >= radius) {
+//            return null;
+//        }
+//
+//        double th = alignZero(Math.sqrt(Math.pow(radius, 2) - Math.pow(d, 2)));
+//        double t1 = tm - th;
+//        double t2 = tm + th;
+//        Point p1 = p0.add(v.scale(t1));
+//        Point p2 = p0.add(v.scale(t2));
+//        if (alignZero((center.subtract(p1)).lengthSquared() - Math.pow(radius, 2)) == 0) {
+//            intsersections.add(p1);
+//        }
+//        if (alignZero((center.subtract(p2)).lengthSquared() - Math.pow(radius, 2)) == 0) {
+//            intsersections.add(p2);
+//        }
+//        return intsersections;
+
+        //-----------------------------------------------------------------------------------
+
+
     }
 
     /**
