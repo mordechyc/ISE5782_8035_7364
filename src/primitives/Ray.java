@@ -26,6 +26,12 @@ public class Ray {
         return dir;
     }
 
+    /**
+     *
+     * @param t scalar for multiplay
+     * p the point on the ray
+     * @return P vector scale t
+     */
     public Point getPoint(double t) {
         Vector tv = null;
         try {
@@ -50,7 +56,6 @@ public class Ray {
         Ray ray = (Ray) o;
         return Objects.equals(p0, ray.p0) && Objects.equals(dir, ray.dir);
     }
-
     /**
      * It returns a string representation of the ray.
      *
