@@ -3,8 +3,10 @@ package geometries;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+
 import static primitives.Util.alignZero;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Triangle extends Polygon {
@@ -23,6 +25,7 @@ public class Triangle extends Polygon {
     public Vector getNormal(Point point) {
         return super.getNormal(point);
     }
+
     /**
      * find intersections point with the triangle
      * v1 = p1 - p0 <br/>
@@ -34,6 +37,7 @@ public class Triangle extends Polygon {
      * let v be the direction of the rey
      * if v*ni (i between 1 to 3) is have the sing (+/-)
      * there is intersection points with the triangle
+     *
      * @param ray ray that cross the triangle
      * @return list of intersection points that were found
      */
@@ -41,12 +45,13 @@ public class Triangle extends Polygon {
     public List<Point> findIntsersections(Ray ray) {
         Point p0 = ray.getP0();
         Vector v = ray.getDir();
+        List<Point> intsersections = new LinkedList<Point>();
 
         var result = plane.findIntsersections(ray);
 
         // if there is no intersections with the plane is a fortiori (kal&homer)
         // that there is no intersections with the triangle
-        if(result == null){
+        if (result == null) {
             return null;
         }
 
@@ -65,8 +70,9 @@ public class Triangle extends Polygon {
         boolean allNegative = x1 < 0 && x2 < 0 && x3 < 0;
         boolean allPositive = x1 > 0 && x2 > 0 && x3 > 0;
 
-        if(allNegative || allPositive){
-            return List.of(result.get(0)); // return the intersections with the plane that the triangle is on
+        if (allNegative || allPositive) {
+            intsersections.add(result.get(0)); // return the intersections with the plane that the triangle is on
+            return intsersections;
         }
         return null;
     }
