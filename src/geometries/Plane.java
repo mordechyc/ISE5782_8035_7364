@@ -79,8 +79,8 @@ public class Plane implements Geometry {
      * @return A list of points.
      */
     @Override
-    public List<Point> findIntsersections(Ray ray) {
-        List<Point> intsersections = new LinkedList<Point>();
+    public List<Point> findIntersections(Ray ray) {
+        List<Point> intersections = new LinkedList<>();
         //save beginning point of ray
         Point p0 = ray.getP0();
         //if ray starts from point on plane then no intersections exist so we can return null with no further calculations
@@ -105,8 +105,8 @@ public class Plane implements Geometry {
 
         Point P = ray.getPoint(t);
         if (P != null) {
-            intsersections.add(P);
-            return intsersections;
+            intersections.add(P);
+            return intersections;
         }
         return null;
     }

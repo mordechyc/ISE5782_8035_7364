@@ -42,18 +42,18 @@ class TriangleTest {
 
         // ============ Equivalence Partitions Tests ==============
         //TC01: Inside triangle
-        List<Point> result = triangle.findIntsersections(new Ray(new Point(2, 0.5, -1),
+        List<Point> result = triangle.findIntersections(new Ray(new Point(2, 0.5, -1),
                 new Vector(0, 1, 1)));
         assertEquals(1, result.size(), "Wrong number of points");
         assertEquals(result.get(0),new Point(2,1.5,0),"Ray crosses plane in wrong spot");
 
         //TC02: Outside against edge
-        result = triangle.findIntsersections(new Ray(new Point(1, 1, -1),
+        result = triangle.findIntersections(new Ray(new Point(1, 1, -1),
                 new Vector(0, 1, 1)));
         assertNull(result, "Wrong number of points");
 
         //TC03: Outside against vertex
-        result = triangle.findIntsersections(new Ray(new Point(2, 1, -1),
+        result = triangle.findIntersections(new Ray(new Point(2, 1, -1),
                 new Vector(0, 2, 1)));
         assertNull(result, "Wrong number of points");
 
@@ -61,17 +61,17 @@ class TriangleTest {
         // =============== Boundary Values Tests ==================
         //**** Group: the ray begins "before" the plane
         //TC11: On edge
-        result = triangle.findIntsersections(new Ray(new Point(2, 0, -1),
+        result = triangle.findIntersections(new Ray(new Point(2, 0, -1),
                 new Vector(0, 1, 1)));
         assertNull(result, "Wrong number of points");
 
         //TC12: In vertex
-        result = triangle.findIntsersections(new Ray(new Point(1, 0, -1),
+        result = triangle.findIntersections(new Ray(new Point(1, 0, -1),
                 new Vector(0, 1, 1)));
         assertNull(result, "Wrong number of points");
 
         //TC13: On edge's continuation
-        result = triangle.findIntsersections(new Ray(new Point(0, 0, -1),
+        result = triangle.findIntersections(new Ray(new Point(0, 0, -1),
                 new Vector(0, 1, 1)));
         assertNull(result, "Wrong number of points");
     }

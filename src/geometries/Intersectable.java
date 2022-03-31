@@ -7,5 +7,11 @@ import java.util.List;
 
 public interface Intersectable {
 
-    public List<Point> findIntsersections(Ray ray);
+    /**
+     * Find all the points where the given ray intersects the given sphere
+     *
+     * @param ray The ray to test for intersections.
+     * @return A list of points.
+     */
+    public List<Point> findIntersections(Ray ray);
 }

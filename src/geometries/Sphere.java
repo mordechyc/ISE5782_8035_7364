@@ -65,8 +65,8 @@ public class Sphere implements Geometry {
      * @return A list of points.
      */
     @Override
-    public List<Point> findIntsersections(Ray ray) {
-        List<Point> intsersections = new LinkedList<Point>();
+    public List<Point> findIntersections(Ray ray) {
+        List<Point> intersections = new LinkedList<>();
 
         //Save ray starting point and direction
         Point p0 = ray.getP0();
@@ -99,20 +99,20 @@ public class Sphere implements Geometry {
         if (t1 > 0 && t2 > 0) {
             Point p1 = p0.add(v.scale(t1));
             Point p2 = p0.add(v.scale(t2));
-            intsersections.add(p1);
-            intsersections.add(p2);
+            intersections.add(p1);
+            intersections.add(p2);
 
-            return intsersections;
+            return intersections;
         }
         if (t1 > 0) {
             Point p1 = p0.add(v.scale(t1));
-            intsersections.add(p1);
-            return  intsersections;
+            intersections.add(p1);
+            return  intersections;
         }
         if (t2 > 0) {
             Point p2 = p0.add(v.scale(t2));
-            intsersections.add(p2);
-            return  intsersections;
+            intersections.add(p2);
+            return  intersections;
         }
         return null;
     }
