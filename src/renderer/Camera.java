@@ -55,6 +55,7 @@ public class Camera {
             throw new IllegalArgumentException("Illegal value of height");
         }
         this.height = height;
+
         return this;
     }
 
@@ -70,6 +71,7 @@ public class Camera {
             throw new IllegalArgumentException("Distance cannot be zero. Did you think I wouldn't notice?");
         }
         this.distance = distance;
+
         return this;
     }
 
@@ -82,7 +84,7 @@ public class Camera {
      * @param i  Index in view plane
      * @return Ray that goes from camera to point (j,i) in view plane
      */
-    public Ray constructRay(int nX, int nY, int j, int i) {
+    public Ray constructRayThroughPixel(int nX, int nY, int j, int i) {
         //Find center of image
         Point pc = p0.add(vTo.scale(distance));
         Point pIJ = pc;
