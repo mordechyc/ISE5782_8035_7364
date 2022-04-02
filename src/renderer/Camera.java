@@ -1,9 +1,11 @@
 package renderer;
 
 import primitives.Point;
+import primitives.Ray;
 import primitives.Vector;
 
-import static primitives.Util.isZero;
+import static primitives.Util.*;
+import static primitives.Util.random;
 
 public class Camera {
 
@@ -71,14 +73,43 @@ public class Camera {
         return this;
     }
 
-
     /**
-     * Getter for p0 (location of camera)
+     * Creates a ray the travels from camera through  pixel on the grid
      *
-     * @return location of camera
+     * @param nX Number of rows in view plane
+     * @param nY Number of columns in view plane
+     * @param j  Index in view plane
+     * @param i  Index in view plane
+     * @return Ray that goes from camera to point (j,i) in view plane
      */
-    public Point getP0() {
-        return p0;
+    public Ray constructRay(int nX, int nY, int j, int i) {
+        //Find center of image
+        Point pc = p0.add(vTo.scale(distance));
+        Point pIJ = pc;
+
+        //Find number of pixels for size of view plane (divide height and width by number of actual pixels)
+        //Ry = h/Ny
+        //Rx = w/Nx
+        double rY = alignZero(height / nY);
+        double rX = alignZero(width / nX);
+        //Find center of pixel
+        //Yi = -(i - (Ny - 1)/2) * Ry
+        //Xj = (J - (Nx -1)/2) * Rx
+        double xJ = alignZero((j - ((nX - 1) / 2d)) * rX);
+        double yI = alignZero(-(i - ((nY - 1) / 2d)) * rY);
+
+        //Set pIJ to correct value. It starts at center of view plane and will be moved to correct location in view plane
+        if (xJ != 0) {
+            pIJ = pIJ.add(vRight.scale(xJ));
+        }
+        if (yI != 0) {
+            pIJ = pIJ.add(vUp.scale(yI));
+        }
+        //Vi, j = Pi, j - P0
+        Vector vIJ = pIJ.subtract(p0);
+
+        //Return ray from camera (p0) to found point in view plane (vIJ)
+        return new Ray(p0, vIJ);
     }
 
     /**
@@ -88,6 +119,15 @@ public class Camera {
      */
     public void setP0(Point p0) {
         this.p0 = p0;
+    }
+
+    /**
+     * Getter for p0 (location of camera)
+     *
+     * @return location of camera
+     */
+    public Point getP0() {
+        return p0;
     }
 
     /**
