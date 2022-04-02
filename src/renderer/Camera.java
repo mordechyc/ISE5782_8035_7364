@@ -4,8 +4,8 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
-import static primitives.Util.*;
-import static primitives.Util.random;
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
 
 public class Camera {
 
