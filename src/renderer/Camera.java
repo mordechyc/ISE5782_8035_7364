@@ -9,12 +9,12 @@ import static primitives.Util.isZero;
 
 public class Camera {
 
-    private Point p0;    // Location of camera
-    private Vector vUp;    // Vector facing up out of the camera
-    private Vector vTo;    // Vector facing forward out of the camera
-    private Vector vRight; // Vector facing right out of the camera
-    private double width;  // Width of viewing plane
-    private double height; // Height of viewing plane
+    private Point p0;          // Location of camera
+    private Vector vUp;        // Vector facing up out of the camera
+    private Vector vTo;        // Vector facing forward out of the camera
+    private Vector vRight;     // Vector facing right out of the camera
+    private double width;      // Width of viewing plane
+    private double height;     // Height of viewing plane
     private double distance;   // Distance of viewing plane from camera
 
     /**

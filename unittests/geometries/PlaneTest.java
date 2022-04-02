@@ -9,23 +9,28 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Testing Plane Class
+ *
+ * @author Mordechy Cohen
+ */
 class PlaneTest {
 
     /**
      * Test method for {@link geometries.Plane#Plane(Point, Point, Point)}.
      */
     @Test
-    void testPlane(){
+    void testPlane() {
         // =============== Boundary Values Tests ==================
         //test 2 point on same spot
-        assertThrows(IllegalArgumentException.class,()->new Plane(
+        assertThrows(IllegalArgumentException.class, () -> new Plane(
                         new Point(0, 0, 1),
                         new Point(0, 0, 1),
                         new Point(0, 1, 0)),
                 "constructor for 3 points does not throw an exception in case of 2 identical points");
 
         //test all points on same line
-        assertThrows(IllegalArgumentException.class,()->new Plane(
+        assertThrows(IllegalArgumentException.class, () -> new Plane(
                         new Point(1, 1, 1),
                         new Point(2, 2, 2),
                         new Point(3, 3, 3)),
@@ -43,19 +48,19 @@ class PlaneTest {
                 new Point(0, 1, 0));
 
         double sqrt3 = Math.sqrt(1d / 3);
-        Vector result= pl.getNormal(new Point(0, 0, 1));
-        assertEquals(new Vector(sqrt3, sqrt3, sqrt3), result,"Bad normal to plane");
+        Vector result = pl.getNormal(new Point(0, 0, 1));
+        assertEquals(new Vector(sqrt3, sqrt3, sqrt3), result, "Bad normal to plane");
     }
 
     /**
      * Test method for {@link geometries.Plane#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntsersections() {
+    void testFindIntersections() {
         Plane plane = new Plane(
-                new Point(1,1,0),
-                new Point(2,2,0),
-                new Point(3,1,0));
+                new Point(1, 1, 0),
+                new Point(2, 2, 0),
+                new Point(3, 1, 0));
 
         // ============ Equivalence Partitions Tests ==============
         //**** Group: The Ray must be neither orthogonal nor parallel to the plane
@@ -86,7 +91,7 @@ class PlaneTest {
         result = plane.findIntersections(new Ray(new Point(1, 1, -1),
                 new Vector(0, 0, 1)));
         assertEquals(1, result.size(), "Wrong number of points");
-        assertEquals(result.get(0),new Point(1,1,0),"Ray crosses plane in wrong spot");
+        assertEquals(result.get(0), new Point(1, 1, 0), "Ray crosses plane in wrong spot");
 
         //TC14: according to P0 - in the plane
         result = plane.findIntersections(new Ray(new Point(1, 1, 0),

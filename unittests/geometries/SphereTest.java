@@ -9,6 +9,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Testing Sphere Class
+ *
+ * @author Mordechy Cohen
+ */
 class SphereTest {
 
     /**
@@ -26,7 +31,7 @@ class SphereTest {
      * Test method for {@link geometries.Sphere#findIntersections(primitives.Ray)}.
      */
     @Test
-    void testFindIntsersections() {
+    void testFindIntersections() {
         Sphere sphere = new Sphere(new Point(1, 0, 0), 1d);
 
 // ============ Equivalence Partitions Tests ==============

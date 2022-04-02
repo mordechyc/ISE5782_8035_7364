@@ -7,7 +7,8 @@ import primitives.Vector;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for primitives.Point class
+ * Testing Point Class
+ *
  * @author Mordechy Cohen Avichai Kadosh
  */
 class PointTest {
@@ -17,12 +18,12 @@ class PointTest {
      */
     @Test
     public void testAdd() {
-        Point p1 = new Point(1,2,3);
+        Point p1 = new Point(1, 2, 3);
         // ============ Equivalence Partitions Tests ==============
-        Vector v=new Vector(1,2,3);
-        Point newP=new Point(2,4,6);
+        Vector v = new Vector(1, 2, 3);
+        Point newP = new Point(2, 4, 6);
         //TC01: Test that the result of add is proper
-        assertEquals(newP,p1.add(v),"add() got wrong result ");
+        assertEquals(newP, p1.add(v), "add() got wrong result ");
 
         // =============== Boundary Values Tests ==================
 
@@ -34,12 +35,12 @@ class PointTest {
      */
     @Test
     public void testSubtract() {
-        Point p1 = new Point(2,3,4);
-        Point p2=new Point(1,2,3);
+        Point p1 = new Point(2, 3, 4);
+        Point p2 = new Point(1, 2, 3);
         // ============ Equivalence Partitions Tests ==============
-        Vector v=new Vector(1,1,1);
+        Vector v = new Vector(1, 1, 1);
         //TC01: Test that the result of substract is proper
-        assertEquals(v,p1.subtract(p2),"substract() got wrong result ");
+        assertEquals(v, p1.subtract(p2), "substract() got wrong result ");
     }
 
     /**
@@ -47,13 +48,13 @@ class PointTest {
      */
     @Test
     void testDistanceSquared() {
-        Point p1 = new Point(1,1,2);
-        Point p2 = new Point(1,4,6);
+        Point p1 = new Point(1, 1, 2);
+        Point p2 = new Point(1, 4, 6);
 
         // ============ Equivalence Partitions Tests ==============
-        double newDistanceSquered=25;
+        double newDistanceSquered = 25;
         //TC01: Test that the result of substract is proper
-        assertEquals(p1.distanceSquared(p2),newDistanceSquered,"distanceSquared() got wrong result ");
+        assertEquals(p1.distanceSquared(p2), newDistanceSquered, "distanceSquared() got wrong result ");
     }
 
     /**
@@ -61,12 +62,12 @@ class PointTest {
      */
     @Test
     void testDistance() {
-        Point p1 = new Point(1,1,2);
-        Point p2 = new Point(1,4,6);
+        Point p1 = new Point(1, 1, 2);
+        Point p2 = new Point(1, 4, 6);
 
         // ============ Equivalence Partitions Tests ==============
-        double newDistanceSquered=5;
+        double newDistanceSquered = 5;
         //TC01: Test that the result of substract is proper
-        assertEquals(p1.distance(p2),newDistanceSquered,"distance() got wrong result ");
+        assertEquals(p1.distance(p2), newDistanceSquered, "distance() got wrong result ");
     }
 }

@@ -9,6 +9,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Testing Triangle Class
+ *
+ * @author Mordechy Cohen
+ */
 class TriangleTest {
 
     /**
