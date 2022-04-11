@@ -12,7 +12,7 @@ public class Scene {
 
     public Scene(String name) {
         this.name = name;
-
+        this.geometries=new Geometries();
     }
 
     public Scene setName(String name) {

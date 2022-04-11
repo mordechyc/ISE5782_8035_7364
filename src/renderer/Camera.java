@@ -1,8 +1,11 @@
 package renderer;
 
+import primitives.Color;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+
+import java.util.MissingResourceException;
 
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
@@ -16,7 +19,17 @@ public class Camera {
     private double width;      // Width of viewing plane
     private double height;     // Height of viewing plane
     private double distance;   // Distance of viewing plane from camera
+    private ImageWriter imageWriter;
+    private RayTracerBase rayTracer;
+    public Camera setImageWriter(ImageWriter imageWriter) {
+        this.imageWriter = imageWriter;
+        return this;
+    }
 
+    public Camera setRayTracer(RayTracerBase rayTracerBase) {
+        this.rayTracer = rayTracerBase;
+        return this;
+    }
     /**
      * Constructor that receives location, forward vector and up vector
      *
@@ -45,7 +58,7 @@ public class Camera {
      * @param height plane height
      * @return Camera
      */
-    public Camera setViewPlaneSize(double width, double height) {
+        public Camera setViewPlaneSize(double width, double height) {
         if (width <= 0) {
             throw new IllegalArgumentException("Illegal value of width");
         }
@@ -113,7 +126,45 @@ public class Camera {
         //Return ray from camera (p0) to found point in view plane (vIJ)
         return new Ray(p0, vIJ);
     }
+    public Camera moveCamera(Point newPosition, Point newPointOfView) {
+        // the new vTo of the the camera
+        Vector new_vTo = newPointOfView.subtract(newPosition).normalize();
+        // the angle between the new vTo and the old
+        double theta = new_vTo.dotProduct(vTo);
+        // axis vector for the rotation
+        Vector k = vTo.crossProduct(new_vTo).normalize();
 
+        vTo = new_vTo;
+        p0 = newPosition;
+
+        return rotateCamera(theta, k);
+    }
+    /**
+     * Rotate the camera by rotating the vectors of the camera directions <br/>
+     * According the Rodrigues' rotation formula
+     * @param theta angle theta according to the right hand rule in degrees
+     * @return this camera after the rotating
+     */
+    public Camera rotateCamera(double theta) {
+        return rotateCamera(theta, vTo);
+    }
+    /**
+     * Rotate the camera by rotating the vectors of the camera directions <br/>
+     * According the Rodrigues' rotation formula
+     * @param theta angle theta according to the right hand rule in degrees
+     * @param k axis vector for the rotation
+     * @return this camera after the rotating
+     */
+    private Camera rotateCamera(double theta, Vector k) {
+        double radianAngle = Math.toRadians(theta);
+        double cosTheta = alignZero(Math.cos(radianAngle));
+        double sinTheta = alignZero(Math.sin(radianAngle));
+
+        vRight.rotateVector(k, cosTheta, sinTheta);
+        vUp.rotateVector(k, cosTheta, sinTheta);
+
+        return this;
+    }
     /**
      * Setter for p0 (location of camera)
      *
@@ -185,5 +236,66 @@ public class Camera {
     public double getDistance() {
         return distance;
     }
-
+    /**
+     * Cast ray from camera in order to color a pixel
+     * @param nX resolution on X axis (number of pixels in row)
+     * @param nY resolution on Y axis (number of pixels in column)
+     * @param col pixel's column number (pixel index in row)
+     * @param row pixel's row number (pixel index in column)
+     */
+    private void castRay(int nX, int nY, int col, int row) {
+        Color pixelColor;
+        Ray ray = constructRayThroughPixel(nX, nY, col, row);
+        pixelColor = rayTracer.traceRay(ray);
+        imageWriter.writePixel(col, row, pixelColor);
+    }
+    /**
+     * Produces a pixel-sized matrix of the view plane and colors rows and columns
+     * @param interval the space between the rows and columns
+     * @param color the color of the grid
+     * @throws MissingResourceException if image writer for the render is missing
+     */
+    public void printGrid(int interval, Color color) throws MissingResourceException {
+        if(imageWriter==null) {
+            throw new MissingResourceException("ERROR - image writer not initlized",ImageWriter.class.getName(),"");
+        }
+        for (int i = 0; i < imageWriter.getNx(); i++) {
+            for (int j = 0; j < imageWriter.getNy(); j++) {
+                if(j % interval != 0 && i%interval!=0){
+                    imageWriter.writePixel(i, j, new Color(0,10,0));
+                }
+            }
+        }
+        imageWriter.writeToImage();
+    }
+    public void writeToImage()  {
+        try{
+            imageWriter.writeToImage();
+        }
+        catch (Exception e)
+        {
+            throw new MissingResourceException("ERROR - image writer not initlized", ImageWriter.class.getName(), "");
+        }
+    }
+    public void renderImage(){
+        try {
+            if (imageWriter == null) {
+                throw new MissingResourceException("missing resource", ImageWriter.class.getName(), "");
+            }
+            if (p0 == null ||vRight==null || vTo==null || vUp==null|| width ==0.0||height==0.0||distance==0.0) {
+                throw new MissingResourceException("missing resource", Camera.class.getName(), "");
+            }
+            if (rayTracer == null) {
+                throw new MissingResourceException("missing resource", RayTracerBase.class.getName(), "");
+            }
+        } catch(MissingResourceException e){
+            throw new UnsupportedOperationException("missing resources in order to create the image"
+                    + e.getClassName());
+        }
+        for (int i = 0; i < imageWriter.getNx(); i++) {
+            for (int j = 0; j < imageWriter.getNy(); j++) {
+                castRay(imageWriter.getNx(),imageWriter.getNy(),i,j);
+            }
+        }
+    }
 }

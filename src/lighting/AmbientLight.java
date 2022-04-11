@@ -13,7 +13,7 @@ public class AmbientLight {
 
     public AmbientLight() {
         this.intensity = Color.BLACK;
-    }   
+    }
 
     public Color getIntensity() {
         return intensity;
