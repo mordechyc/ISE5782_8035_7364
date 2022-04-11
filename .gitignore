@@ -2,3 +2,4 @@ out/
 .idea/
 ISE5782_8035_7364.iml
 **/*.class
+/images/
