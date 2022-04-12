@@ -11,7 +11,7 @@ public class Ray {
     /**
      * A constructor
      *
-     * @param p0 p0
+     * @param p0  p0
      * @param dir dir
      */
     public Ray(Point p0, Vector dir) {
@@ -28,9 +28,8 @@ public class Ray {
     }
 
     /**
-     *
      * @param t scalar for multiplay
-     * p the point on the ray
+     *          p the point on the ray
      * @return P vector scale t
      */
     public Point getPoint(double t) {
@@ -57,6 +56,7 @@ public class Ray {
         Ray ray = (Ray) o;
         return Objects.equals(p0, ray.p0) && Objects.equals(dir, ray.dir);
     }
+
     /**
      * It returns a string representation of the ray.
      *
@@ -69,20 +69,26 @@ public class Ray {
                 ", dir=" + dir +
                 '}';
     }
-    public Point findClosestPoint(List<Point> list){
-        if(list == null){
+
+    /**
+     * Finds the closest intersection point to ray's origin
+     *
+     * @param pointList - list of all intersections
+     * @return closest point
+     */
+    public Point findClosestPoint(List<Point> pointList) {
+        if (pointList == null) {
             return null;
         }
 
         Point closesPoint = null;
         double minDistance = Double.MAX_VALUE;
-        for (int i=0;i< list.size();i++)
-        {
-            if (p0.distance(list.get(i))<minDistance) {
-                minDistance = p0.distance(list.get(i));
-                closesPoint = list.get(i);
+        for (int i = 0; i < pointList.size(); i++) {
+            if (p0.distance(pointList.get(i)) < minDistance) {
+                minDistance = p0.distance(pointList.get(i));
+                closesPoint = pointList.get(i);
             }
         }
-            return closesPoint;
+        return closesPoint;
     }
 }
