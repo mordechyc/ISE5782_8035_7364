@@ -21,6 +21,7 @@ public class Camera {
     private double distance;   // Distance of viewing plane from camera
     private ImageWriter imageWriter;
     private RayTracerBase rayTracer;
+
     public Camera setImageWriter(ImageWriter imageWriter) {
         this.imageWriter = imageWriter;
         return this;
@@ -30,6 +31,7 @@ public class Camera {
         this.rayTracer = rayTracerBase;
         return this;
     }
+
     /**
      * Constructor that receives location, forward vector and up vector
      *
@@ -127,7 +129,7 @@ public class Camera {
         return new Ray(p0, vIJ);
     }
     public Camera moveCamera(Point newPosition, Point newPointOfView) {
-        // the new vTo of the the camera
+        // the new vTo of the camera
         Vector new_vTo = newPointOfView.subtract(newPosition).normalize();
         // the angle between the new vTo and the old
         double theta = new_vTo.dotProduct(vTo);
