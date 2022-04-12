@@ -13,6 +13,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Testing Intersections to Camera Claas
+ *
+ * @author Mordechy Cohen
+ */
 class IntersectionTests {
     @Test
     public void testIntersections() {
