@@ -6,14 +6,14 @@ import scene.Scene;
 
 public abstract class RayTracerBase {
 
-    protected Scene scena; //objects of Scene
+    protected Scene scene; //objects of Scene
 
     /**
-     * Constructor
+     * Constructor. Receives a scene
      * @param scene scene
      */
     public RayTracerBase(Scene scene) {
-        this.scena = scene;
+        this.scene = scene;
     }
 
     /**

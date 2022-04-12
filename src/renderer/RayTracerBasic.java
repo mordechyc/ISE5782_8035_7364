@@ -9,17 +9,44 @@ import scene.Scene;
 import java.util.List;
 
 public class RayTracerBasic extends RayTracerBase  {
-    public RayTracerBasic(Scene scena) {
-        super(scena);
+
+    /**
+     * Constructor. Receives a scene
+     * @param scene scene
+     */
+    public RayTracerBasic(Scene scene) {
+        super(scene);
     }
+
+    /**
+     * Takes a ray and traces it through the scene until intersection is found.
+     * If no intersection exists return background color.
+     *
+     * @param ray the ray that we want to trace
+     * @return The color of the closest point to the camera.
+     */
+    @Override
     public  Color traceRay(Ray ray){
-        List<Point> intersections =scena.geometries.findIntersections(ray);
-        if(intersections==null)
-            return scena.background;
-        return calcColor(ray.findClosestPoint(intersections));
+        //Find the closest intersection point to ray
+        List<Point> intersections =scene.geometries.findIntersections(ray);
+        //if ray finds intersection return color for pixel
+        if (intersections != null){
+            Point closest = ray.findClosestPoint(intersections);
+            return calcColor(closest);
+        }
+        //if no intersections exist
+        return  scene.background;
     }
+
+
+    /**
+     * Calculate the color of ray intersection with object
+     *
+     * @param point The point on the surface of the object.
+     * @return Color of intersection
+     */
     public Color calcColor(Point point)
     {
-        return scena.ambientLight.getIntensity();
+        return scene.ambientLight.getIntensity();
     }
 }
