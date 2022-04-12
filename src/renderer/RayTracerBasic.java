@@ -45,7 +45,7 @@ public class RayTracerBasic extends RayTracerBase  {
      * @param point The point on the surface of the object.
      * @return Color of intersection
      */
-    private Color calcColor(Point point)
+     private Color calcColor(Point point)
     {
         return scene.ambientLight.getIntensity();
     }
