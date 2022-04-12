@@ -261,8 +261,8 @@ public class Camera {
         }
         for (int i = 0; i < imageWriter.getNx(); i++) {
             for (int j = 0; j < imageWriter.getNy(); j++) {
-                if(j % interval != 0 && i%interval!=0){
-                    imageWriter.writePixel(i, j, new Color(0,10,0));
+                if(j % interval == 0 || i%interval==0){
+                    imageWriter.writePixel(i, j, color);
                 }
             }
         }

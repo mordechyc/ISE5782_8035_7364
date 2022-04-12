@@ -1,5 +1,6 @@
 package renderer;
 
+import geometries.Geometry;
 import primitives.Color;
 import primitives.Point;
 import primitives.Ray;

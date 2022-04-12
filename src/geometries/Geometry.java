@@ -1,10 +1,10 @@
 package geometries;
 
+import primitives.Color;
 import primitives.Point;
 import primitives.Vector;
 
 public interface Geometry extends Intersectable  {
-
     /**
      * Given a point, return the normal vector to the surface at that point
      *
