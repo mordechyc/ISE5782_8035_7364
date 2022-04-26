@@ -1,5 +1,3 @@
-package renderer;
-
 import geometries.Geometry;
 import geometries.Plane;
 import geometries.Sphere;
@@ -8,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
+import renderer.Camera;
 
 import java.util.List;
 

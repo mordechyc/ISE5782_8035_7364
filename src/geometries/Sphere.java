@@ -10,7 +10,7 @@ import java.util.List;
 import static primitives.Util.alignZero;
 
 
-public class Sphere implements Geometry {
+public class Sphere extends Geometry {
 
     private final Point center;
     private final double radius;
@@ -65,8 +65,8 @@ public class Sphere implements Geometry {
      * @return A list of points.
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        List<Point> intersections = new LinkedList<>();
+    public List<GeoPoint> findGeoIntersectionsHelper(Ray ray) {
+        List<GeoPoint> intersections = new LinkedList<>();
 
         //Save ray starting point and direction
         Point p0 = ray.getP0();
@@ -99,19 +99,19 @@ public class Sphere implements Geometry {
         if (t1 > 0 && t2 > 0) {
             Point p1 = p0.add(v.scale(t1));
             Point p2 = p0.add(v.scale(t2));
-            intersections.add(p1);
-            intersections.add(p2);
+            intersections.add(new GeoPoint(this,p1));
+            intersections.add(new GeoPoint(this,p2));
 
             return intersections;
         }
         if (t1 > 0) {
             Point p1 = p0.add(v.scale(t1));
-            intersections.add(p1);
+            intersections.add(new GeoPoint(this,p1));
             return  intersections;
         }
         if (t2 > 0) {
             Point p2 = p0.add(v.scale(t2));
-            intersections.add(p2);
+            intersections.add(new GeoPoint(this,p2));
             return  intersections;
         }
         return null;

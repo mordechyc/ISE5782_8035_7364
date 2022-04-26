@@ -10,7 +10,7 @@ import java.util.List;
 import static primitives.Util.alignZero;
 import static primitives.Util.isZero;
 
-public class Plane implements Geometry {
+public class Plane extends Geometry {
 
     final private Point q0;
     final private Vector normal;
@@ -79,8 +79,8 @@ public class Plane implements Geometry {
      * @return A list of points.
      */
     @Override
-    public List<Point> findIntersections(Ray ray) {
-        List<Point> intersections = new LinkedList<>();
+    public List<GeoPoint> findGeoIntersectionsHelper(Ray ray) {
+        List<GeoPoint> intersections = new LinkedList<>();
         //save beginning point of ray
         Point p0 = ray.getP0();
         //if ray starts from point on plane then no intersections exist so we can return null with no further calculations
@@ -105,7 +105,7 @@ public class Plane implements Geometry {
 
         Point P = ray.getPoint(t);
         if (P != null) {
-            intersections.add(P);
+            intersections.add(new GeoPoint(this,P));
             return intersections;
         }
         return null;
