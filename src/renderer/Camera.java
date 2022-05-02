@@ -19,8 +19,8 @@ public class Camera {
     private double width;      // Width of viewing plane
     private double height;     // Height of viewing plane
     private double distance;   // Distance of viewing plane from camera
-    private ImageWriter imageWriter;
-    private RayTracerBase rayTracer;
+    private ImageWriter imageWriter; // Image Writer
+    private RayTracerBase rayTracer; // ray Tracer
 
     /**
      * Constructor that receives location, forward vector and up vector
@@ -218,7 +218,7 @@ public class Camera {
      * the function throw MissingResourceException.
      *
      * @throws MissingResourceException if one of param's Camera is missing
-     * @return
+     * @return this, the camera itself
      */
     public Camera renderImage() {
         try {

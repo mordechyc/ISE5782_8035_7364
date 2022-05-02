@@ -82,10 +82,10 @@ public class RayTracerBasic extends RayTracerBase  {
 
     /**
      * Calculates diffusive light
-     * @param kd
-     * @param l
-     * @param n
-     * @param lightIntensity
+     * @param kd kd
+     * @param l l
+     * @param n n
+     * @param lightIntensity lightIntensity
      * @return The color of diffusive effects
      */
     private Color calcDiffusive(Double3 kd, Vector l, Vector n, Color lightIntensity) {
@@ -97,12 +97,12 @@ public class RayTracerBasic extends RayTracerBase  {
 
     /**
      * Calculate specular light
-     * @param ks
-     * @param l
-     * @param n
-     * @param v
-     * @param nShininess
-     * @param lightIntensity
+     * @param ks ks
+     * @param l l
+     * @param n n
+     * @param v v
+     * @param nShininess nShininess
+     * @param lightIntensity lightIntensity
      * @return The color of specular reflection
      */
     private Color calcSpecular(Double3 ks, Vector l, Vector n, Vector v, int nShininess, Color lightIntensity) {
