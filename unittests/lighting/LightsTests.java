@@ -14,6 +14,7 @@ import static java.awt.Color.*;
  *
  * @author Dan
  */
+
 public class LightsTests {
 	private Scene scene1 = new Scene("Test scene");
 	private Scene scene2 = new Scene("Test scene") //
