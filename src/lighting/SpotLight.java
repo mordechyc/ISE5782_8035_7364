@@ -9,6 +9,9 @@ public class SpotLight extends PointLight {
 
     private Vector direction;
 
+
+
+    private double NarrowBeam = 1d;
     /**
      * Constructor
      *
@@ -20,7 +23,10 @@ public class SpotLight extends PointLight {
         super(intensity, position);
         this.direction = direction.normalize();
     }
-
+    public SpotLight setNarrowBeam(double narrowBeam) {
+        NarrowBeam = narrowBeam;
+        return this;
+    }
     /**
      * If the dot product between the light's direction and the vector from the light to the point is negative, return
      * black. Otherwise, return the light's intensity scaled by the dot product
@@ -33,6 +39,8 @@ public class SpotLight extends PointLight {
         double dotProduct = Util.alignZero(direction.dotProduct(super.getL(p)));
         if (dotProduct <= 0)
             return Color.BLACK;
+        if(NarrowBeam!=1)
+           dotProduct= Math.pow(dotProduct,NarrowBeam);
         return super.getIntensity(p).scale(dotProduct);
     }
 

@@ -218,8 +218,9 @@ public class Camera {
      * the function throw MissingResourceException.
      *
      * @throws MissingResourceException if one of param's Camera is missing
+     * @return
      */
-    public void renderImage() {
+    public Camera renderImage() {
         try {
             if (imageWriter == null) {
                 throw new MissingResourceException("missing resource", ImageWriter.class.getName(), "");
@@ -239,6 +240,7 @@ public class Camera {
                 castRay(imageWriter.getNx(), imageWriter.getNy(), i, j);
             }
         }
+        return this;
     }
 
     /**

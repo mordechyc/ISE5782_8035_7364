@@ -4,7 +4,7 @@ public class Material {
 
     public Double3 kD = Double3.ZERO;
     public Double3 kS = Double3.ZERO;
-    public int nShininess = 0;
+    public int Shininess = 0;
 
     public Material setKd(Double3 kD) {
         this.kD = kD;
@@ -26,8 +26,8 @@ public class Material {
         return this;
     }
 
-    public Material setnShininess(int nShininess) {
-        this.nShininess = nShininess;
+    public Material setShininess(int shininess) {
+        this.Shininess = shininess;
         return this;
     }
 }

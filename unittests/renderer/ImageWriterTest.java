@@ -19,7 +19,7 @@ class ImageWriterTest {
                 else if (j % 50 == 0) {
                     imageWriter.writePixel(i, j, Color.BLACK);
                 } else {
-                    imageWriter.writePixel(i, j, new Color(0,0,255)); //blue
+                    imageWriter.writePixel(i, j, new Color(255,0,0)); //blue
                 }
             }
         }
