@@ -173,22 +173,22 @@ public class LightsTests {
 				.writeToImage(); //
 	}
 	/**
-	 * Produce a picture of a two triangles lighted by a spot light and Point light
+	 * Produce a picture of a two triangles lighted by all type of Light Source
 	 */
 	@Test
-	public void trianglesSpotwithTwoLightSource() {
+	public void trianglesSpotwithallTypeofLightSource() {
 		scene2.geometries.add(triangle1, triangle2);
 		scene2.lights.add(new SpotLight(trCL, trPL, trDL).setKl(0.001).setKq(0.0001));
 		scene2.lights.add(new PointLight(trCL, new Point(-30, -10, 100)));
 		scene2.lights.add(new DirectionalLight(trCL, trDL.scale(-2)));
-		ImageWriter imageWriter = new ImageWriter("lightTrianglesSpotwithTwoLightSource", 500, 500);
+		ImageWriter imageWriter = new ImageWriter("lightTrianglesSpotwithallTypeofLightSource", 500, 500);
 		camera2.setImageWriter(imageWriter) //
 				.setRayTracer(new RayTracerBasic(scene2)) //
 				.renderImage() //
 				.writeToImage(); //
 	}
 	/**
-	 * Produce a picture of a sphere lighted by a narrow spot light and point light
+	 * Produce a picture of a sphere lighted by all type of Light Source
 	 */
 	@Test
 	public void sphereSpotSharpWithFewLightSource() {
@@ -204,7 +204,12 @@ public class LightsTests {
 				.renderImage() //
 				.writeToImage(); //
 	}
+
+
 	@Test
+	/**
+	 * Produce a picture of a Sun systemm lighted by all type of Light Source
+	 */
 	public void sunSystem() {
 		scene1.background=new Color(68, 165, 212);
 		scene1.geometries.add(sphere);
