@@ -10,6 +10,8 @@ import java.util.List;
 
 public class RayTracerBasic extends RayTracerBase  {
 
+    private static final double DELTA = 0.1;
+
     /**
      * Constructor. Receives a scene
      * @param scene scene
@@ -52,8 +54,8 @@ public class RayTracerBasic extends RayTracerBase  {
     /**
      * Calculate the effects of lights
      *
-     * @param intersection
-     * @param ray
+     * @param intersection intersection
+     * @param ray ray
      * @return The color resulted by local effecrs calculation
      */
     private Color calcLocalEffects(GeoPoint intersection, Ray ray) {
@@ -71,9 +73,11 @@ public class RayTracerBasic extends RayTracerBase  {
             Vector l = lightSource.getL(intersection.point);
             double nl = alignZero(n.dotProduct(l));
             if (nl * nv > 0) { // checks if nl == nv
-                Color lightIntensity = lightSource.getIntensity(intersection.point);
-                color = color.add(calcDiffusive(kd, l, n, lightIntensity),
-                        calcSpecular(ks, l, n, v, nShininess, lightIntensity));
+                if (unshaded(intersection,l,n,nv)) {
+                    Color lightIntensity = lightSource.getIntensity(intersection.point);
+                    color = color.add(calcDiffusive(kd, l, n, lightIntensity),
+                            calcSpecular(ks, l, n, v, nShininess, lightIntensity));
+                }
             }
         }
         return color;
@@ -112,5 +116,14 @@ public class RayTracerBasic extends RayTracerBase  {
             vr = 0;
         vr = Math.pow(vr, nShininess);
         return lightIntensity.scale(ks.scale(vr));
+    }
+
+    private boolean unshaded(GeoPoint gp, Vector l, Vector n, double nv) {
+        Vector lightDirection = l.scale(-1); // from point to light source
+        Vector epsVector = n.scale(nv < 0 ? DELTA : -DELTA);
+        Point point = gp.point.add(epsVector);
+        Ray lightRay = new Ray(point, lightDirection);
+        List<GeoPoint> intersections = scene.geometries.findGeoIntersections(lightRay);
+        return intersections == null; //ensure if is empty;
     }
 }
