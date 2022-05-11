@@ -10,7 +10,6 @@ import java.util.List;
 public class Geometries extends Intersectable {
 
     private List<Intersectable> geometries;
-
     /**
      * Find the intersections of the ray with all the intersectables in the scene
      *
@@ -18,11 +17,11 @@ public class Geometries extends Intersectable {
      * @return A list of points.
      */
     @Override
-    public List<GeoPoint> findGeoIntersectionsHelper(Ray ray) {
+    public List<GeoPoint> findGeoIntersectionsHelper(Ray ray,double maxDistance) {
         List<GeoPoint> result = null;
 
         for (Intersectable item : geometries) {
-            List<GeoPoint> itemPoints = item.findGeoIntersectionsHelper(ray);
+            List<GeoPoint> itemPoints = item.findGeoIntersectionsHelper(ray,maxDistance);
             if (itemPoints != null) {
                 if (result == null) {
                     result = new LinkedList<>();

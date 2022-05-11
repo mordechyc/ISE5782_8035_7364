@@ -5,6 +5,7 @@ import primitives.Ray;
 import primitives.Vector;
 
 import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,12 +43,12 @@ public class Triangle extends Polygon {
      * @return list of intersection points that were found
      */
     @Override
-    public List<GeoPoint> findGeoIntersectionsHelper(Ray ray) {
+    public List<GeoPoint> findGeoIntersectionsHelper(Ray ray, double maxDistance) {
         Point p0 = ray.getP0();
         Vector v = ray.getDir();
         List<GeoPoint> intersections = new LinkedList<>();
 
-        var result = plane.findIntersections(ray);
+        var result = plane.findGeoIntersections(ray,maxDistance);
 
         // if there is no intersections with the plane is a fortiori (kal&homer)
         // that there is no intersections with the triangle
@@ -69,9 +70,8 @@ public class Triangle extends Polygon {
 
         boolean allNegative = x1 < 0 && x2 < 0 && x3 < 0;
         boolean allPositive = x1 > 0 && x2 > 0 && x3 > 0;
-
         if (allNegative || allPositive) {
-            intersections.add(new GeoPoint(this,result.get(0))); // return the intersections with the plane that the triangle is on
+            intersections.add(new GeoPoint(this,result.get(0).point)); // return the intersections with the plane that the triangle is on
             return intersections;
         }
         return null;

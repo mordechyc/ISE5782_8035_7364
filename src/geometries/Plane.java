@@ -79,7 +79,7 @@ public class Plane extends Geometry {
      * @return A list of points.
      */
     @Override
-    public List<GeoPoint> findGeoIntersectionsHelper(Ray ray) {
+    public List<GeoPoint> findGeoIntersectionsHelper(Ray ray, double maxDistance) {
         List<GeoPoint> intersections = new LinkedList<>();
         //save beginning point of ray
         Point p0 = ray.getP0();
@@ -99,7 +99,7 @@ public class Plane extends Geometry {
 
         double t = alignZero(numeratorDot / denominatorDot);
 
-        if (t <= 0) {
+        if (t <= 0 ||alignZero(t-maxDistance) >0){
             return null;
         }
 

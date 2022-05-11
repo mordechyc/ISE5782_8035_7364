@@ -41,6 +41,8 @@ public class LightsTests {
 	private Material material = new Material().setKd(0.5).setKs(0.5).setShininess(300);
 	private Geometry triangle1 = new Triangle(p[0], p[1], p[2]).setMaterial(material);
 	private Geometry triangle2 = new Triangle(p[0], p[1], p[3]).setMaterial(material);
+	private Geometry plane1 = new Plane(p[0], p[1], p[2]).setMaterial(material);
+	private Geometry plane2 = new Plane(p[0], p[1], p[3]).setMaterial(material);
 	private Geometry sphere = new Sphere(new Point(0, 0, -50), 50d) //
 			.setEmission(new Color(BLUE).reduce(2)) //
 			.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300));
@@ -118,7 +120,7 @@ public class LightsTests {
 	 */
 	@Test
 	public void trianglesPoint() {
-		scene2.geometries.add(triangle1, triangle2);
+		scene2.geometries.add(triangle1, triangle2,new Sphere(new Point(20,50,-100),30).setEmission( new Color(red)));
 		scene2.lights.add(new PointLight(trCL, trPL).setKl(0.001).setKq(0.0002));
 
 		ImageWriter imageWriter = new ImageWriter("lightTrianglesPoint", 500, 500);
@@ -183,6 +185,20 @@ public class LightsTests {
 		scene2.lights.add(new PointLight(trCL, new Point(-30, -10, 100)));
 		scene2.lights.add(new DirectionalLight(trCL, trDL.scale(-2)));
 		ImageWriter imageWriter = new ImageWriter("lightTrianglesSpotwithallTypeofLightSource", 500, 500);
+		camera2.setImageWriter(imageWriter) //
+				.setRayTracer(new RayTracerBasic(scene2)) //
+				.renderImage() //
+				.writeToImage(); //
+	}
+	/**
+	 * Produce a picture of a two triangles lighted by a point light
+	 */
+	@Test
+	public void planesPoint() {
+		scene2.geometries.add(plane1, plane2,triangle1,new Sphere(new Point(20,50,-100),30).setEmission( new Color(red)),new Sphere(new Point(150,10,-100),2));
+		scene2.lights.add(new PointLight(trCL, trPL).setKl(0.001).setKq(0.0002));
+
+		ImageWriter imageWriter = new ImageWriter("lightPlanesPoint", 500, 500);
 		camera2.setImageWriter(imageWriter) //
 				.setRayTracer(new RayTracerBasic(scene2)) //
 				.renderImage() //
