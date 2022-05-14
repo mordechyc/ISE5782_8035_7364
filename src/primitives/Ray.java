@@ -8,7 +8,7 @@ public class Ray {
 
     private final Point p0;
     private final Vector dir;
-
+    private static final double DELTA = 0.1;
     /**
      * A constructor
      *
@@ -19,7 +19,12 @@ public class Ray {
         this.p0 = p0;
         this.dir = dir.normalize();
     }
+    public Ray(Point point, Vector direction,Vector n) {
 
+        double delta = n.dotProduct(direction) >= 0d ? DELTA : - DELTA;
+        p0 = point.add(n.scale(delta));
+        dir = direction.normalize();
+    }
     public Point getP0() {
         return p0;
     }

@@ -2,16 +2,31 @@ package geometries;
 
 import primitives.Point;
 import primitives.Ray;
+import primitives.Vector;
 
 import java.io.DataInput;
 import java.util.List;
 
 public abstract class Intersectable {
-
+    /**
+     * Helper class
+     * In order to get color for each geometry shape individually
+     * within a scene, we want to calculate color
+     * at a certain point for the geometry
+     */
     public static class GeoPoint{
+        /**
+         * the geometry that we find the color of a certain point
+         */
         public Geometry geometry;
+        /**
+         * the point on the geometry that we get the color from
+         */
         public Point point;
-
+        /**
+         * the normal at the point on the geometry
+         */
+        public Vector normal;
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -31,6 +46,7 @@ public abstract class Intersectable {
         public GeoPoint(Geometry geometry, Point point) {
             this.geometry = geometry;
             this.point = point;
+            this.normal = this.geometry.getNormal(this.point);
         }
     }
     /**

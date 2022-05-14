@@ -49,10 +49,10 @@ public class LightsTests {
 	private Geometry sphere1 = new Sphere(new Point(70, 70, -50), 30d) //
 			.setEmission(new Color(253, 184, 19).reduce(2)) //
 			.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300));
-	private Geometry sphere2 = new Sphere(new Point(50, 50, 65), 25d) //
+	private Geometry sphere2 = new Sphere(new Point(50, 50, 75), 20d) //
 			.setEmission(new Color(253, 184, 19).reduce(2)) //
 			.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300));
-	private Geometry sphere3 = new Sphere(new Point(75, 75, 80), 12.5d) //
+	private Geometry sphere3 = new Sphere(new Point(75, 75, 120), 12.5d) //
 			.setEmission(new Color(red).reduce(2)) //
 			.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300));
 	/**
@@ -228,6 +228,12 @@ public class LightsTests {
 	 * Produce a picture of a Sun systemm lighted by all type of Light Source
 	 */
 	public void sunSystem() {
+		//	private Geometry sphere = new Sphere(new Point(0, 0, -50), 50d) //
+		//			.setEmission(new Color(BLUE).reduce(2)) //
+		//			.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300));
+		//	private Geometry sphere1 = new Sphere(new Point(70, 70, -50), 30d) //
+		//			.setEmission(new Color(253, 184, 19).reduce(2)) //
+		//			.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300));
 		scene1.background=new Color(68, 165, 212);
 		scene1.geometries.add(sphere);
 		scene1.geometries.add(sphere1);

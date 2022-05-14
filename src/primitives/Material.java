@@ -4,6 +4,8 @@ public class Material {
 
     public Double3 kD = Double3.ZERO;
     public Double3 kS = Double3.ZERO;
+    public Double3 kT = Double3.ZERO;
+    public Double3 kR = Double3.ZERO;
     public int Shininess = 0;
 
     /**
@@ -49,7 +51,28 @@ public class Material {
         this.kS = new Double3(kS);
         return this;
     }
-
+    /**
+     * Set the transparency of the material to the given value.
+       coefficient is the transmitted fraction where 𝒌𝑻 = 𝟏 when
+       object is translucent, 𝒌𝑻 = 𝟎 when the object is opaque.
+     *
+     * @param kS specular reflectivity
+     * @return The material itself.
+     */
+    public Material setkT(Double3 kT) {
+        this.kT = kT;
+        return this;
+    }
+    /**
+     * Set the reflection reflectance of the material to the given value.
+       Perfect mirror has a 𝒌𝑹 = 𝟏 and matt surface has a 𝒌𝑹 = 0
+     * @param kS specular reflectivity
+     * @return The material itself.
+     */
+    public Material setkR(Double3 kR) {
+        this.kR = kR;
+        return this;
+    }
     /**
      * This function sets the shininess of the material.
      *
