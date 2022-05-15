@@ -100,7 +100,7 @@ public class RayTracerBasic extends RayTracerBase  {
                 //if (unshaded(intersection,l,n,nv,lightSource)) {
                 Double3 ktr = transparency(intersection, l,lightSource);
                 if (ktr.product(k).biggerThan(MIN_CALC_COLOR_K) ){
-                        Color lightIntensity = lightSource.getIntensity(intersection.point);
+                        Color lightIntensity = lightSource.getIntensity(intersection.point).scale(ktr);
                     color = color.add(calcDiffusive(kd, l, n, lightIntensity),
                             calcSpecular(ks, l, n, v, nShininess, lightIntensity));
                 }
@@ -187,7 +187,7 @@ public class RayTracerBasic extends RayTracerBase  {
         double lightDistance = lightSource.getDistance(geoPoint.point);
         Double3 ktr = new Double3(1);
         for (GeoPoint gp : intersections) {
-            if (alignZero(gp.point.distance(geoPoint.point) - lightDistance) <= 0) {
+            if (alignZero(gp.point.distance(geoPoint.point) - lightDistance) <= 0) {//<=0
                 ktr = gp.geometry.getMaterial().kT.product(ktr); // The transparency of each intersection
                 if (ktr.lowerThan( MIN_CALC_COLOR_K)){
                     return new Double3(0); // full shadow
