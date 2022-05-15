@@ -5,7 +5,7 @@
 public final class Main {
 
     /**
-     * Main program
+     * Main program.
      *
      * @param args irrelevant here
      */
