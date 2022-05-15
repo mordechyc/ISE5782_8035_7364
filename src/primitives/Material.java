@@ -56,7 +56,7 @@ public class Material {
        coefficient is the transmitted fraction where 𝒌𝑻 = 𝟏 when
        object is translucent, 𝒌𝑻 = 𝟎 when the object is opaque.
      *
-     * @param kS specular reflectivity
+     * @param kT transparency reflectivity
      * @return The material itself.
      */
     public Material setkT(Double3 kT) {
@@ -66,7 +66,7 @@ public class Material {
     /**
      * Set the reflection reflectance of the material to the given value.
        Perfect mirror has a 𝒌𝑹 = 𝟏 and matt surface has a 𝒌𝑹 = 0
-     * @param kS specular reflectivity
+     * @param kR reflection reflectivity
      * @return The material itself.
      */
     public Material setkR(Double3 kR) {

@@ -46,7 +46,8 @@ public abstract class Intersectable {
         public GeoPoint(Geometry geometry, Point point) {
             this.geometry = geometry;
             this.point = point;
-            this.normal = this.geometry.getNormal(this.point);
+            if(geometry!=null)
+                this.normal = this.geometry.getNormal(this.point);
         }
     }
     /**

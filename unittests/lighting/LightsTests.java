@@ -209,14 +209,23 @@ public class LightsTests {
 	 */
 	@Test
 	public void sphereSpotSharpWithFewLightSource() {
-		scene1.geometries.add(sphere);
+		scene1.geometries.add(sphere.setMaterial(new Material().setKd(0.25).setKs(0.25).setShininess(20).setkT(new Double3(0.5))));
 		scene1.geometries.add(sphere2);
 		scene1.geometries.add(sphere3);
+		scene1.geometries.add(new Sphere(new Point(0, 0, -50), 25d) //
+				.setEmission(new Color(red).reduce(2)) );
+		scene1.geometries.add(new Plane(new Point(0,-70,1),new Vector(0,3,1)).setEmission(new Color(20, 20, 20)) //
+				.setMaterial(new Material().setkR(new Double3(1))));
+		scene1.geometries.add(new Plane(new Point(-50,-70,1),new Vector(20,0,2)).setEmission(new Color(20, 20, 20)) //
+				.setMaterial(new Material().setkR(new Double3(1))));
 		scene1.lights.add(new SpotLight(spCL, spPL, new Vector(1, 1, -0.5)).setNarrowBeam(100).setKl(0.001).setKq(0.00004));
 		scene1.lights.add(new PointLight(trCL,new Point(-1, 1, -50)));
 		scene1.lights.add(new DirectionalLight(trCL, trDL.scale(0.5)));
+		scene1.lights.add(new PointLight(trCL, new Point(0,1,-0.25)));
+		//scene1.lights.add(new DirectionalLight(trCL, new Vector(-200,20,-170)));
+
 		ImageWriter imageWriter = new ImageWriter("lightSphereSpotSharpWithFewLightSource", 500, 500);
-		camera3.setImageWriter(imageWriter) //
+		camera3.setImageWriter(imageWriter).setViewPlaneDistance(1300) //
 				.setRayTracer(new RayTracerBasic(scene1)) //
 				.renderImage() //
 				.writeToImage(); //
