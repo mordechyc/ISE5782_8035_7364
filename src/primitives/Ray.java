@@ -2,6 +2,7 @@ package primitives;
 
 import java.util.List;
 import java.util.Objects;
+
 import geometries.Intersectable.GeoPoint;
 
 public class Ray {
@@ -9,6 +10,7 @@ public class Ray {
     private final Point p0;
     private final Vector dir;
     private static final double DELTA = 0.1;
+
     /**
      * A constructor
      *
@@ -19,16 +21,35 @@ public class Ray {
         this.p0 = p0;
         this.dir = dir.normalize();
     }
-    public Ray(Point point, Vector direction,Vector n) {
 
-        double delta = n.dotProduct(direction) >= 0d ? DELTA : - DELTA;
+    /**
+     * constructor that takes in point, direction and additional vector for cases of reflection
+     *
+     * @param point     point
+     * @param direction direction
+     * @param n         n
+     */
+    public Ray(Point point, Vector direction, Vector n) {
+
+        double delta = n.dotProduct(direction) >= 0d ? DELTA : -DELTA;
         p0 = point.add(n.scale(delta));
         dir = direction.normalize();
     }
+
+    /**
+     * This function returns the value of the private variable p0.
+     *
+     * @return The point p0.
+     */
     public Point getP0() {
         return p0;
     }
 
+    /**
+     * This function returns the direction of the player.
+     *
+     * @return The direction of the ray.
+     */
     public Vector getDir() {
         return dir;
     }
@@ -76,6 +97,12 @@ public class Ray {
                 '}';
     }
 
+    /**
+     * //find which intersection point is closest to ray
+     *
+     * @param points a list of points
+     * @return A point
+     */
     public Point findClosestPoint(List<Point> points) {
         if (points == null || points.isEmpty())
             return null;

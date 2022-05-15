@@ -2,11 +2,11 @@ package primitives;
 
 public class Material {
 
-    public Double3 kD = Double3.ZERO;
-    public Double3 kS = Double3.ZERO;
-    public Double3 kT = Double3.ZERO;
-    public Double3 kR = Double3.ZERO;
-    public int Shininess = 0;
+    public Double3 kD = Double3.ZERO; //diffuse factor
+    public Double3 kS = Double3.ZERO; //specular factor
+    public Double3 kT = Double3.ZERO;  //transparency factor
+    public Double3 kR = Double3.ZERO;  //refraction factor
+    public int Shininess = 0;  //shininess factor
 
     /**
      * Set the diffuse color of the material to the given color and return the material.
