@@ -17,7 +17,8 @@ public class RayTracerBasic extends RayTracerBase {
     private static final int MAX_CALC_COLOR_LEVEL = 10; //Number of ray bounces to calculate
     private static final double MIN_CALC_COLOR_K = 0.001; //Minimum level of impact calculation must have on color for calculation to continue
     private static final Double3 INITIAL_K = new Double3(1.0); //Starting value for ray impact
-
+    private static final boolean SOFT_SHADOW=true   ;
+    //private static final int NUM_OF_RAYS=10;
     private static final double EPS = 0.1;
 
     /**
@@ -111,19 +112,43 @@ public class RayTracerBasic extends RayTracerBase {
         Double3 kd = intersection.geometry.getMaterial().kD;
         Double3 ks = intersection.geometry.getMaterial().kS;
         Color color = Color.BLACK;
-        for (LightSource lightSource : scene.lights) {
-            Vector l = lightSource.getL(intersection.point);
-            double nl = alignZero(n.dotProduct(l));
-            if (nl * nv > 0) { // checks if nl == nv
-                //if (unshaded(intersection,l,n,nv,lightSource)) {
-                Double3 ktr = transparency(intersection, l, lightSource);
-                if (ktr.product(k).biggerThan(MIN_CALC_COLOR_K)) {
-                    Color lightIntensity = lightSource.getIntensity(intersection.point).scale(ktr);
-                    color = color.add(calcDiffusive(kd, l, n, lightIntensity),
-                            calcSpecular(ks, l, n, v, nShininess, lightIntensity));
+        //get color given by every light source
+        if (SOFT_SHADOW) {
+            for (LightSource lightSource : scene.lights) {
+                Color color1 = new Color(0, 0, 0);
+                for (Vector l : lightSource.getListL(intersection.point)) {
+                    double nl = alignZero(n.dotProduct(l));
+                    if (nl * nv > 0) { // sign(nl) == sign(nv)
+                        //get transparency of the object
+                        Double3 ktr = transparency(intersection, l, lightSource);
+                        if (ktr.product(k).biggerThan(MIN_CALC_COLOR_K)) { //check if the depth of calculation was reached then don't calculate any more
+                            // color is scaled by transparency to get the right color effect
+                            Color lightIntensity = lightSource.getIntensity(intersection.point).scale(ktr);
+                            //get effects of the color and add them to the color
+                            color1 = color1.add(calcDiffusive(kd, l, n, lightIntensity),
+                                    calcSpecular(ks, l, n, v, nShininess, lightIntensity));
+                        }
+                    }
+                }
+                color = color.add(color1.reduce(lightSource.getListL(intersection.point).size()));
+            }
+        }
+        else {
+            for (LightSource lightSource : scene.lights) {
+                Vector l = lightSource.getL(intersection.point);
+                double nl = alignZero(n.dotProduct(l));
+                if (nl * nv > 0) { // checks if nl == nv
+                    //if (unshaded(intersection,l,n,nv,lightSource)) {
+                    Double3 ktr = transparency(intersection, l, lightSource);
+                    if (ktr.product(k).biggerThan(MIN_CALC_COLOR_K)) {
+                        Color lightIntensity = lightSource.getIntensity(intersection.point).scale(ktr);
+                        color = color.add(calcDiffusive(kd, l, n, lightIntensity),
+                                calcSpecular(ks, l, n, v, nShininess, lightIntensity));
+                    }
                 }
             }
         }
+
         return color;
     }
 
@@ -251,7 +276,6 @@ public class RayTracerBasic extends RayTracerBase {
         Ray lightRay = new Ray(geoPoint.point, lightDirection, geoPoint.normal);
         // check if another geometry is blocking us by finding intersections
         var intersections = scene.geometries.findGeoIntersections(lightRay);
-
         if (intersections == null) {
             return new Double3(1); // There is no shadow
         }

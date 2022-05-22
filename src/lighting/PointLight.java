@@ -4,9 +4,14 @@ import primitives.Color;
 import primitives.Point;
 import primitives.Vector;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
 public class PointLight extends Light implements LightSource {
 
     private Point position;
+    protected double radius;
     private double Kc = 1;
     private double Kl = 0;
     private double Kq = 0;
@@ -21,7 +26,11 @@ public class PointLight extends Light implements LightSource {
         super(intensity);
         this.position = position;
     }
-
+    public PointLight(Color c, Point pos, double radius) {
+        super(c);
+        position = pos;
+        this.radius = radius;
+    }
     /**
      * Sets the constant attenuation factor of the light.
      *
@@ -54,7 +63,10 @@ public class PointLight extends Light implements LightSource {
         this.Kq = kq;
         return this;
     }
-
+    public PointLight setradius(double radius) {
+        this.radius = radius;
+        return this;
+    }
     /**
      * The intensity of a point light source is inversely proportional to the square of the distance from the light source
      *
@@ -86,5 +98,34 @@ public class PointLight extends Light implements LightSource {
     @Override
     public double getDistance(Point point) {
          return position.distance(point);
+    }
+    @Override
+    public List<Vector> getListL(Point p) {
+        Random r = new Random();
+        List<Vector> vectors = new LinkedList();
+        for (double i = -radius; i < radius; i += radius / 5) {
+            for (double j = -radius; j < radius; j += radius / 5) {
+                if (i != 0 && j != 0) {
+                    Point point = position.add(new Vector(i, 0.1d, j));
+                    if (point.equals(position)){
+                        vectors.add(p.subtract(point).normalize());
+                    }
+                    else{
+                        try{
+                            if (point.subtract(position).dotProduct(point.subtract(position)) <= radius * radius){
+                                vectors.add(p.subtract(point).normalize());
+                            }
+                        }
+                        catch (Exception e){
+                            vectors.add(p.subtract(point).normalize());
+                        }
+
+                    }
+                }
+
+            }
+        }
+        vectors.add(getL(p));
+        return vectors;
     }
 }

@@ -4,6 +4,8 @@ import primitives.Color;
 import primitives.Point;
 import primitives.Vector;
 
+import java.util.List;
+
 public class DirectionalLight extends Light implements LightSource {
 
     private Vector direction;
@@ -51,5 +53,9 @@ public class DirectionalLight extends Light implements LightSource {
         //directional light comes from everywhere (sort of) so we want to return a point that definitely is
         // farther away than any point the function may receive.
         return Double.POSITIVE_INFINITY;
+    }
+    @Override
+    public List<Vector> getListL(Point p) {
+        return List.of(getL(p));
     }
 }

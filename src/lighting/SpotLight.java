@@ -24,6 +24,10 @@ public class SpotLight extends PointLight {
         this.direction = direction.normalize();
     }
 
+    public SpotLight(Color c, Point pos, Vector direction, double radius) {
+        super(c, pos, radius);
+        this.direction = direction.normalize();
+    }
     /**
      * > Sets the narrow beam of the spot light
      *

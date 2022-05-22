@@ -296,7 +296,7 @@ public class Camera {
 
 
     //---------------------------------------------------------------------------------------------------------------------------------//
-
+/*
     /**
      * Rotate the camera by rotating the vectors of the camera directions <br/>
      * According the Rodrigues' rotation formula
@@ -304,10 +304,10 @@ public class Camera {
      * @param theta angle theta according to the right hand rule in degrees
      * @return this camera after the rotating
      */
-    public Camera rotateCamera(double theta) {
+  /*  public Camera rotateCamera(double theta) {
         return rotateCamera(theta, vTo);
-    }
-
+    }*/
+/*
     /**
      * Rotate the camera by rotating the vectors of the camera directions <br/>
      * According the Rodrigues' rotation formula
@@ -316,7 +316,7 @@ public class Camera {
      * @param k     axis vector for the rotation
      * @return this camera after the rotating
      */
-    private Camera rotateCamera(double theta, Vector k) {
+  /*  private Camera rotateCamera(double theta, Vector k) {
         double radianAngle = Math.toRadians(theta);
         double cosTheta = alignZero(Math.cos(radianAngle));
         double sinTheta = alignZero(Math.sin(radianAngle));
@@ -325,8 +325,8 @@ public class Camera {
         vUp.rotateVector(k, cosTheta, sinTheta);
 
         return this;
-    }
-
+    }*/
+/*
     public Camera moveCamera(Point newPosition, Point newPointOfView) {
         // the new vTo of the camera
         Vector new_vTo = newPointOfView.subtract(newPosition).normalize();
@@ -341,5 +341,65 @@ public class Camera {
         return rotateCamera(theta, k);
     }
 
+*/
+    /**
+     * Rotates the camera (pitch, tilt and yaw)
+     *  @param xDeg number of degrees by which the camera will be rotated around the x-axis relative to its current orientation
+     * @param yDeg number of degrees by which the camera will be rotated around the y-axis relative to its current orientation
+     * @param zDeg number of degrees by which the camera will be rotated around the z axis relative to its current orientation
+     * @return
+     */
+    public Camera rotate(double xDeg, double yDeg, double zDeg) {
+        if (xDeg != 0) {
+            //convert input to radians
+            double xRad = Math.toRadians(xDeg);
 
+            //check vTo vector is not on the x-axis. If it is no change is necessary.
+            if (vTo.getZ() != 0 || vTo.getY() != 0) {
+                //Cast vector onto YZ plane, turn it and return as new vector
+                double xTheta = Math.atan2(vTo.getZ(), vTo.getY());
+                double newXTheta = xTheta + xRad;
+                vTo = new Vector(vTo.getX(), Math.cos(newXTheta), Math.sin(newXTheta));
+            }
+            //Repeat process to vUp vector
+            if (vUp.getZ() != 0 || vUp.getY() != 0) {
+                double xTheta = Math.atan2(vTo.getZ(), vTo.getY());
+                double newXTheta = xTheta + xRad;
+                vTo = new Vector(vTo.getX(), Math.cos(newXTheta), Math.sin(newXTheta));
+            }
+            //Find new vRight value (cross product of vTo and vUp)
+            vRight = vTo.crossProduct(vUp).normalize();
+        }
+
+        if (yDeg != 0) {
+            double yRad = Math.toRadians(yDeg);
+            if (vTo.getX() != 0 || vTo.getZ() != 0) {
+                double yTheta = Math.atan2(vTo.getX(), vTo.getZ());
+                double newYTheta = yTheta + yRad;
+                vTo = new Vector(Math.sin(newYTheta), vTo.getY(), Math.cos(newYTheta));
+            }
+            if (vUp.getX() != 0 || vUp.getZ() != 0) {
+                double yTheta = Math.atan2(vUp.getX(), vUp.getZ());
+                double newYTheta = yTheta + yRad;
+                vUp = new Vector(Math.sin(newYTheta), vUp.getY(), Math.cos(newYTheta));
+            }
+            vRight = vTo.crossProduct(vUp).normalize();
+        }
+
+        if (zDeg != 0) {
+            double zRad = Math.toRadians(zDeg);
+            if (vTo.getY() != 0 || vTo.getX() != 0) {
+                double zTheta = Math.atan2(vTo.getY(), vTo.getX());
+                double newZTheta = zTheta + zRad;
+                vTo = new Vector(Math.cos(newZTheta), Math.sin(newZTheta), vTo.getZ());
+            }
+            if (vUp.getY() != 0 || vUp.getX() != 0) {
+                double zTheta = Math.atan2(vUp.getY(), vUp.getX());
+                double newZTheta = zTheta + zRad;
+                vUp = new Vector(Math.cos(newZTheta), Math.sin(newZTheta), vUp.getZ());
+            }
+            vRight = vTo.crossProduct(vUp).normalize();
+        }
+        return this;
+    }
 }
