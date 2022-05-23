@@ -132,6 +132,7 @@ public class RayTracerBasic extends RayTracerBase {
                 }
                 color = color.add(color1.reduce(lightSource.getListL(intersection.point).size()));
             }
+            
         }
         else {
             for (LightSource lightSource : scene.lights) {
