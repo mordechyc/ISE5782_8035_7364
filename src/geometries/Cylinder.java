@@ -51,6 +51,7 @@ public class Cylinder extends Tube {
         return super.getNormal(point);
     }
 
+
     @Override
     public List<Point> findIntersections(Ray ray) {
         return null;
@@ -67,4 +68,5 @@ public class Cylinder extends Tube {
                 super.toString() +
                 '}';
     }
+
 }

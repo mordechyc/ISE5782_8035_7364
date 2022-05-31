@@ -252,6 +252,11 @@ public class Camera {
      * @param row pixel's row number (pixel index in column)
      */
     private void castRay(int nX, int nY, int col, int row) {
+        if(col==200 &&row==170)
+        {
+            int x=1;
+        }
+        System.out.println(col+","+row);
         Color pixelColor;
         Ray ray = constructRayThroughPixel(nX, nY, col, row);
         pixelColor = rayTracer.traceRay(ray);

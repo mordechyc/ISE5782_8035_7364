@@ -200,7 +200,7 @@ public class LightsTests {
 		scene2.lights.add(new PointLight(trCL, trPL,10).setKl(0.001).setKq(0.0002));
 
 		ImageWriter imageWriter = new ImageWriter("lightPlanesPoint", 500, 500);
-		camera2.rotate(0,0,220).setImageWriter(imageWriter) //
+		camera2.rotate(0,0,50).setImageWriter(imageWriter) //
 				.setRayTracer(new RayTracerBasic(scene2)) //
 				.renderImage() //
 				.writeToImage(); //
@@ -232,7 +232,40 @@ public class LightsTests {
 				.writeToImage(); //
 	}
 
-
+	@Test
+	/**
+	 * Produce a picture of a Sun systemm lighted by all type of Light Source
+	 */
+	public void ALLeffects() {
+		//	private Geometry sphere = new Sphere(new Point(0, 0, -50), 50d) //
+		//			.setEmission(new Color(BLUE).reduce(2)) //
+		//			.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300));
+		//	private Geometry sphere1 = new Sphere(new Point(70, 70, -50), 30d) //
+		//			.setEmission(new Color(253, 184, 19).reduce(2)) //
+		//			.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300));
+		scene1.background=new Color(68, 165, 212);
+		scene1.geometries.add(sphere);
+		scene1.geometries.add(new Sphere(new Point(60, 60, 10), 30d) //
+				.setEmission(new Color(253, 184, 19).reduce(2)));
+		scene1.geometries.add(new Sphere(new Point(0, -60, -50), 30d) //
+				.setEmission(new Color(RED)) //
+				.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300)));
+		scene1.geometries.add(new Sphere(new Point(90 ,-40,-170), 30d) //
+				.setEmission(new Color(RED)) //
+				.setMaterial(new Material().setKd(0.5).setKs(0.5).setShininess(300)));
+		scene1.geometries.add(new Plane(new Point(10 ,15,15),new Point(0,5,30), new Point(0,60,60))//
+				.setEmission(new Color(20, 20, 20)).setMaterial(new Material().setkR(new Double3(1))));
+		scene1.geometries.add(new Plane(new Point(10 ,-90,20),new Point(-30,-90,-80), new Point(-30,-90,0))//
+				.setEmission(new Color(20, 20, 20)).setMaterial(new Material().setkR(new Double3(1))));
+		scene1.lights.add(new SpotLight(spCL, spPL.add(new Vector(-100,0,0)), new Vector(0.75, 5, 0.5),10).setNarrowBeam(100).setKl(0.001).setKq(0.00004));
+		scene1.lights.add(new PointLight(trCL,new Point(80, 20, 0),10));
+		scene1.lights.add(new DirectionalLight(trCL, trDL.scale(2)));
+		ImageWriter imageWriter = new ImageWriter("ALLeffects", 500, 500);
+		camera1.setImageWriter(imageWriter).setViewPlaneDistance(300) //
+				.setRayTracer(new RayTracerBasic(scene1)) //
+				.renderImage() //
+				.writeToImage(); //
+	}
 	@Test
 	/**
 	 * Produce a picture of a Sun systemm lighted by all type of Light Source

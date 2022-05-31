@@ -103,24 +103,18 @@ public class PointLight extends Light implements LightSource {
     public List<Vector> getListL(Point p) {
         Random r = new Random();
         List<Vector> vectors = new LinkedList();
-        for (double i = -radius; i < radius; i += radius / 5) {
-            for (double j = -radius; j < radius; j += radius / 5) {
+        for (double i = -radius; i < radius; i += radius / 15) {
+            for (double j = -radius; j < radius; j += radius / 15) {
                 if (i != 0 && j != 0) {
                     Point point = position.add(new Vector(i, 0.1d, j));
-                    if (point.equals(position)){
-                        vectors.add(p.subtract(point).normalize());
-                    }
-                    else{
-                        try{
+                  //  if (point.equals(position)){
+                    //    vectors.add(p.subtract(point).normalize());
+                   // }
+                    //else{
                             if (point.subtract(position).dotProduct(point.subtract(position)) <= radius * radius){
                                 vectors.add(p.subtract(point).normalize());
                             }
-                        }
-                        catch (Exception e){
-                            vectors.add(p.subtract(point).normalize());
-                        }
-
-                    }
+                    //}
                 }
 
             }

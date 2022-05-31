@@ -4,7 +4,7 @@ import lighting.LightSource;
 import primitives.*;
 import scene.Scene;
 import geometries.Intersectable.GeoPoint;
-
+import lighting.*;
 import static primitives.Util.alignZero;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class RayTracerBasic extends RayTracerBase {
     private static final int MAX_CALC_COLOR_LEVEL = 10; //Number of ray bounces to calculate
     private static final double MIN_CALC_COLOR_K = 0.001; //Minimum level of impact calculation must have on color for calculation to continue
     private static final Double3 INITIAL_K = new Double3(1.0); //Starting value for ray impact
-    private static final boolean SOFT_SHADOW=true   ;
+    private static final boolean SOFT_SHADOW=true;
     //private static final int NUM_OF_RAYS=10;
     private static final double EPS = 0.1;
 
@@ -93,7 +93,27 @@ public class RayTracerBasic extends RayTracerBase {
         //Global effects include reflections and refractions.
         return 1 == level ? color : color.add(calcGlobalEffects(intersection, ray.getDir(), level, k));
     }
+    /**
+     * the function that calculates the percentage of rays that heat by the object,
+     * from all the rays that were created by the points of hte light source.
+     *
+     * @param ls       the light source.
+     * @param geoPoint the intersection point.
+     * @return the percentage of rays that are heat by some object.
+     */
+    private Double3 calcShadow(LightSource ls, GeoPoint geoPoint, Vector n) {
 
+        if (ls instanceof DirectionalLight)
+            return transparency(geoPoint,ls.getL(geoPoint.point),ls);//new Double3(1, 1, 1);
+        var list=ls.getListL(geoPoint.point);
+
+        //if this is a relevant light source, and it has size, we are iterating over the vectors of the light source and averaging the transparency of all of them.
+        Double3 average = Double3.ZERO;
+        for (Vector vector : list) {
+            average = average.add(transparency(geoPoint,vector, ls ).reduce(list.size()));
+        }
+        return average;
+    }
     /**
      * Calculate the effects of lights
      *
@@ -103,36 +123,27 @@ public class RayTracerBasic extends RayTracerBase {
      */
     private Color calcLocalEffects(GeoPoint intersection, Ray ray, Double3 k) {
         Vector v = ray.getDir();
-        Vector n = intersection.geometry.getNormal(intersection.point);
+        Vector n = intersection.normal;//geometry.getNormal(intersection.point);
         double nv = alignZero(n.dotProduct(v));
         if (nv == 0)
             return Color.BLACK;
         int nShininess = intersection.geometry.getMaterial().Shininess;
 
+
         Double3 kd = intersection.geometry.getMaterial().kD;
         Double3 ks = intersection.geometry.getMaterial().kS;
         Color color = Color.BLACK;
+
         //get color given by every light source
         if (SOFT_SHADOW) {
+            Color color1 = new Color(0, 0, 0);
             for (LightSource lightSource : scene.lights) {
-                Color color1 = new Color(0, 0, 0);
-                for (Vector l : lightSource.getListL(intersection.point)) {
-                    double nl = alignZero(n.dotProduct(l));
-                    if (nl * nv > 0) { // sign(nl) == sign(nv)
-                        //get transparency of the object
-                        Double3 ktr = transparency(intersection, l, lightSource);
-                        if (ktr.product(k).biggerThan(MIN_CALC_COLOR_K)) { //check if the depth of calculation was reached then don't calculate any more
-                            // color is scaled by transparency to get the right color effect
-                            Color lightIntensity = lightSource.getIntensity(intersection.point).scale(ktr);
-                            //get effects of the color and add them to the color
-                            color1 = color1.add(calcDiffusive(kd, l, n, lightIntensity),
-                                    calcSpecular(ks, l, n, v, nShininess, lightIntensity));
-                        }
-                    }
-                }
-                color = color.add(color1.reduce(lightSource.getListL(intersection.point).size()));
+                color = color.add(calcDiffusive(kd, lightSource.getL(intersection.point), n, lightSource.getIntensity(intersection.point)),
+                       calcSpecular(ks, lightSource.getL(intersection.point), n, v, nShininess, lightSource.getIntensity(intersection.point)));
+
+                color=color.scale(calcShadow(lightSource ,intersection,intersection.normal));
             }
-            
+
         }
         else {
             for (LightSource lightSource : scene.lights) {
@@ -275,23 +286,23 @@ public class RayTracerBasic extends RayTracerBase {
         Vector lightDirection = l.scale(-1); // from point to light source
         // create a new ray that is sent from point to the light source
         Ray lightRay = new Ray(geoPoint.point, lightDirection, geoPoint.normal);
+        double lightDistance = lightSource.getDistance(geoPoint.point);
         // check if another geometry is blocking us by finding intersections
-        var intersections = scene.geometries.findGeoIntersections(lightRay);
+        var intersections = scene.geometries.findGeoIntersections(lightRay,lightDistance);
         if (intersections == null) {
             return new Double3(1); // There is no shadow
         }
 
         // the distance from the light source to the point
-        double lightDistance = lightSource.getDistance(geoPoint.point);
         Double3 ktr = new Double3(1);
         for (GeoPoint gp : intersections) {
-            if (alignZero(gp.point.distance(geoPoint.point) - lightDistance) <= 0) {//<=0
+            //if (alignZero(gp.point.distance(geoPoint.point) - lightDistance) <= 0) {//<=0
                 ktr = gp.geometry.getMaterial().kT.product(ktr); // The transparency of each intersection
                 if (ktr.lowerThan(MIN_CALC_COLOR_K)) {
                     return new Double3(0); // full shadow
                 }
             }
-        }
+       // }
         return ktr;
     }
 }

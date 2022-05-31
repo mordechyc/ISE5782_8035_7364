@@ -71,7 +71,20 @@ public class Vector extends Point {
         double k = xyz.d1 * v2.xyz.d2 - xyz.d2 * v2.xyz.d1;
         return new Vector(i, j, k);
     }
-
+    /**
+     * create vertical vector to this vector
+     * @return vertical vector to this vector
+     */
+    public Vector createVerticalVector(){
+        double x = getX(),
+                y = getY(),
+                z = getZ();
+        if(y == 0 && z == 0){
+            return new Vector(0,1,0);
+        }
+        return new Vector(-y, x, 0)
+                .normalize();
+    }
     /**
      * calculates and returns the square of the vectors length
      *

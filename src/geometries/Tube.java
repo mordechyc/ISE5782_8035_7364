@@ -6,6 +6,9 @@ import primitives.Vector;
 
 import java.util.List;
 
+import static primitives.Util.alignZero;
+import static primitives.Util.isZero;
+
 public class Tube extends Geometry {
 
     protected Ray axisRay;
@@ -68,6 +71,7 @@ public class Tube extends Geometry {
         Vector o_p = point.subtract(o);
         return o_p.normalize();
     }
+
 
     @Override
     public List<GeoPoint> findGeoIntersectionsHelper(Ray ray, double maxDistance) {
