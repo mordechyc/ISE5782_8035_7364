@@ -5,6 +5,8 @@ import primitives.Point;
 import primitives.Ray;
 import primitives.Vector;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.MissingResourceException;
 
 import static primitives.Util.alignZero;
@@ -21,6 +23,165 @@ public class Camera {
     private double distance;   // Distance of viewing plane from camera
     private ImageWriter imageWriter; // Image Writer
     private RayTracerBase rayTracer; // ray Tracer
+
+    private int sampleNumber = 1; //Number of rays to send for single pixel
+
+    public static int adaptiveSSAA = 0; //Decides whether adaptive super sampling anti aliasing will be used to render the image. If yes value will be larger than zero.
+
+    private int MAX_DEPTH = 1; //Maximum depth for recursive function
+
+    private int threadsCount = 0;
+    private static final int SPARE_THREADS = 2; // Spare threads if trying to use all the cores
+    private boolean print = false; // printing progress percentage
+
+    /**
+     * Set multi-threading <br>
+     * - if the parameter is 0 - number of cores less 2 is taken
+     *
+     * @param threads number of threads
+     * @return the Render object itself
+     */
+    public Camera setMultithreading(int threads) {
+        if (threads < 0)
+            throw new IllegalArgumentException("Multithreading parameter must be 0 or higher");
+        if (threads != 0)
+            this.threadsCount = threads;
+        else {
+            int cores = Runtime.getRuntime().availableProcessors() - SPARE_THREADS;
+            this.threadsCount = cores <= 2 ? 1 : cores;
+        }
+        return this;
+    }
+
+    /**
+     * Set debug printing on
+     *
+     * @return the Render object itself
+     */
+    public Camera setDebugPrint() {
+        print = true;
+        return this;
+    }
+
+    /**
+     * Pixel is an internal helper class whose objects are associated with a Render
+     * object that they are generated in scope of. It is used for multithreading in
+     * the Renderer and for follow up its progress.<br/>
+     * There is a main follow up object and several secondary objects - one in each
+     * thread.
+     *
+     * @author Dan
+     */
+    private class Pixel {
+        private long maxRows = 0;
+        private long maxCols = 0;
+        private long pixels = 0;
+        public volatile int row = 0;
+        public volatile int col = -1;
+        private long counter = 0;
+        private int percents = 0;
+        private long nextCounter = 0;
+
+        /**
+         * The constructor for initializing the main follow up Pixel object
+         *
+         * @param maxRows the amount of pixel rows
+         * @param maxCols the amount of pixel columns
+         */
+        public Pixel(int maxRows, int maxCols) {
+            this.maxRows = maxRows;
+            this.maxCols = maxCols;
+            this.pixels = (long) maxRows * maxCols;
+            this.nextCounter = this.pixels / 100;
+            if (Camera.this.print)
+                System.out.printf("\r %02d%%", this.percents);
+        }
+
+        /**
+         * Default constructor for secondary Pixel objects
+         */
+        public Pixel() {
+        }
+
+        /**
+         * Internal function for thread-safe manipulating of main follow up Pixel object
+         * - this function is critical section for all the threads, and main Pixel
+         * object data is the shared data of this critical section.<br/>
+         * The function provides next pixel number each call.
+         *
+         * @param target target secondary Pixel object to copy the row/column of the
+         *               next pixel
+         * @return the progress percentage for follow up: if it is 0 - nothing to print,
+         * if it is -1 - the task is finished, any other value - the progress
+         * percentage (only when it changes)
+         */
+        private synchronized int nextP(Pixel target) {
+            ++col;
+            ++this.counter;
+            if (col < this.maxCols) {
+                target.row = this.row;
+                target.col = this.col;
+                if (Camera.this.print && this.counter == this.nextCounter) {
+                    ++this.percents;
+                    this.nextCounter = this.pixels * (this.percents + 1) / 100;
+                    return this.percents;
+                }
+                return 0;
+            }
+            ++row;
+            if (row < this.maxRows) {
+                col = 0;
+                target.row = this.row;
+                target.col = this.col;
+                if (Camera.this.print && this.counter == this.nextCounter) {
+                    ++this.percents;
+                    this.nextCounter = this.pixels * (this.percents + 1) / 100;
+                    return this.percents;
+                }
+                return 0;
+            }
+            return -1;
+        }
+
+        /**
+         * Public function for getting next pixel number into secondary Pixel object.
+         * The function prints also progress percentage in the console window.
+         *
+         * @param target target secondary Pixel object to copy the row/column of the
+         *               next pixel
+         * @return true if the work still in progress, -1 if it's done
+         */
+        public boolean nextPixel(Pixel target) {
+            int percent = nextP(target);
+            if (Camera.this.print && percent > 0)
+                synchronized (this) {
+                    notifyAll();
+                }
+            if (percent >= 0)
+                return true;
+            if (Camera.this.print)
+                synchronized (this) {
+                    notifyAll();
+                }
+            return false;
+        }
+
+        /**
+         * Debug print of progress percentage - must be run from the main thread
+         */
+        public void print() {
+            if (Camera.this.print)
+                while (this.percents < 100)
+                    try {
+                        synchronized (this) {
+                            wait();
+                        }
+                        System.out.printf("\r %02d%%", this.percents);
+                        System.out.flush();
+                    } catch (Exception e) {
+                    }
+        }
+    }
 
     /**
      * Constructor that receives location, forward vector and up vector
@@ -89,7 +250,7 @@ public class Camera {
      * @param i  Index in view plane
      * @return Ray that goes from camera to point (j,i) in view plane
      */
-    public Ray constructRayThroughPixel(int nX, int nY, int j, int i) {
+    public Ray constructRayThroughPixel1(int nX, int nY, int j, int i) {
         //Find center of image
         Point pc = p0.add(vTo.scale(distance));
         Point pIJ = pc;
@@ -118,6 +279,74 @@ public class Camera {
         //Return ray from camera (p0) to found point in view plane (vIJ)
         return new Ray(p0, vIJ);
     }
+
+    /**
+     * Creates a ray the travels from camera through  pixel on the grid
+     *
+     * @param nX Number of rows in view plane
+     * @param nY Number of columns in view plane
+     * @param j  Index in view plane
+     * @param i  Index in view plane
+     * @return Ray that goes from camera to point (j,i) in view plane
+     */
+    public Ray constructRayThroughPixel(int nX, int nY, int j, int i) {
+        //Find center of image
+        Point pc = p0.add(vTo.scale(distance));
+        Point pIJ = pc;
+
+        //Find number of pixels for size of view plane (divide height and width by number of actual pixels)
+        //Ry = h/Ny
+        //Rx = w/Nx
+        double rY = alignZero(height / nY);
+        double rX = alignZero(width / nX);
+        //Find center of pixel
+        //Yi = -(i - (Ny - 1)/2) * Ry
+        //Xj = (J - (Nx -1)/2) * Rx
+        double xJ = alignZero((j - ((nX - 1) / 2d)) * rX);
+        double yI = alignZero(-(i - ((nY - 1) / 2d)) * rY);
+
+        //This will be used for supersampling.
+        double xOffset = 0;
+        double yOffset = 0;
+
+        //if adaptive supersampling is enabled
+        if (adaptiveSSAA > 0) {
+            //check which corner of pixel to create ray to and set offset from pixel center accordingly
+            switch (adaptiveSSAA){
+                case 1: //top left corner
+                    xOffset = -rX / 2 + 0.00000000001;
+                    yOffset = rY / 2 - 0.00000000001;
+                    break;
+                case 2: //top right corner
+                    xOffset = rX / 2 - 0.00000000001;
+                    yOffset = rY / 2 - 0.00000000001;
+                    break;
+                case 3: //bottom right corner
+                    xOffset = rX / 2 - 0.00000000001;
+                    yOffset = -rY / 2 + 0.00000000001;
+                    break;
+                case 4: //bottom left corner
+                    xOffset = -rX / 2 + 0.00000000001;
+                    yOffset = -rY / 2 + 0.00000000001;
+                    break;
+            }
+
+        }
+
+        //Set pIJ to correct value. It starts at center of view plane and will be moved to correct location in view plane
+        if (xJ != 0) {
+            pIJ = pIJ.add(vRight.scale(xJ + xOffset));
+        }
+        if (yI != 0) {
+            pIJ = pIJ.add(vUp.scale(yI + yOffset));
+        }
+        //Vi, j = Pi, j - P0
+        Vector vIJ = pIJ.subtract(p0);
+
+        //Return ray from camera (p0) to found point in view plane (vIJ)
+        return new Ray(p0, vIJ);
+    }
+
 
     /**
      * Setter for p0 (location of camera)
@@ -237,7 +466,7 @@ public class Camera {
         }
         for (int i = 0; i < imageWriter.getNx(); i++) {
             for (int j = 0; j < imageWriter.getNy(); j++) {
-                castRay(imageWriter.getNx(), imageWriter.getNy(), i, j);
+                castRayAdaptive(imageWriter.getNx(), imageWriter.getNy(), i, j,4);
             }
         }
         return this;
@@ -261,6 +490,96 @@ public class Camera {
         Ray ray = constructRayThroughPixel(nX, nY, col, row);
         pixelColor = rayTracer.traceRay(ray);
         imageWriter.writePixel(col, row, pixelColor);
+    }
+
+    /**
+     * Enables adaptive supersampling
+     * @param num Sub sample depth
+     * @return self
+     */
+    public Camera setAdaptiveSSAA(int num) {
+        adaptiveSSAA = 1;
+        sampleNumber = num;
+        return this;
+    }
+
+    /**
+     * Handles ray casting for adaptive super sampling
+     *
+     * @param nX    resolution on X axis (number of pixels in row)
+     * @param nY    resolution on Y axis (number of pixels in column)
+     * @param col   pixel's column number (pixel index in row)
+     * @param row   pixel's row number (pixel index in column)
+     * @param depth Level of depth in recursive function
+     * @return Color of pixel, averaged out from all sub-squares
+     */
+    private Color castRayAdaptive(int nX, int nY, int col, int row, int depth) {
+
+        System.out.println(col+","+row);
+
+        //Create list of colors
+        List<Color> cornerColorList = new LinkedList<>();
+        //Find color of each corner of pixel.
+        //Loop will run four times, one for each corner.
+        for (int i = 1; i < 5; i++) {
+            adaptiveSSAA = i;
+            //Create ray from camera to corner of pixel
+            Ray ray = constructRayThroughPixel(nX, nY, col, row);
+            //Calculate color and add it to color list
+            cornerColorList.add(rayTracer.traceRay(ray));
+        }
+
+        //If recursive function reached maximum allowed depth
+        if (depth == MAX_DEPTH) {
+            //set blank color
+            Color cornerAvarage = Color.BLACK;
+            //add colors of all four corners to blank color
+            for (Color color : cornerColorList) {
+                cornerAvarage = cornerAvarage.add(color);
+            }
+            //calculate average color and return result
+            cornerAvarage = cornerAvarage.reduce(4);
+            return cornerAvarage;
+        }
+
+        if (compare(cornerColorList)) {
+            //return color of corner
+            Color b= Color.BLACK;
+            b=b.add(cornerColorList.get(0));
+            b=b.add(cornerColorList.get(1));
+            b=b.add(cornerColorList.get(2));
+            b=b.add(cornerColorList.get(3));
+            b= b.reduce(4);
+            return b;
+
+        } else {
+            //Create blank color
+            Color average = Color.BLACK;
+            //Add to blank color the color of all four sub squares using self to calculate the color of sub square
+            average = average.add(castRayAdaptive(nX * 2, nY * 2, col * 2, row * 2, depth + 1));//top left corner
+            average = average.add(castRayAdaptive(nX * 2, nY * 2, col * 2 + 1, row * 2, depth + 1));//top right corner
+            average = average.add(castRayAdaptive(nX * 2, nY * 2, col * 2 + 1, row * 2 + 1, depth + 1));//bottom right corner
+            average = average.add(castRayAdaptive(nX * 2, nY * 2, col * 2, row * 2 + 1, depth + 1));//bottom left corner
+
+            //calculate average color and return result
+            average = average.reduce(4);
+            return average;
+        }
+    }
+
+    private boolean compare(List<Color> a) {
+        int blue, green,red;
+        blue=a.get(0).getColor().getBlue();
+        green=a.get(0).getColor().getGreen();
+        red=a.get(0).getColor().getRed();
+        for (int i=1;i<4;i++) {
+            if (a.get(i).getColor().getBlue()>blue+10||a.get(i).getColor().getBlue()<blue-10||
+                    a.get(i).getColor().getGreen()>green+10||a.get(i).getColor().getGreen()<green-10||
+                    a.get(i).getColor().getRed()>red+10||a.get(i).getColor().getRed()<red-10) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -352,7 +671,7 @@ public class Camera {
      *  @param xDeg number of degrees by which the camera will be rotated around the x-axis relative to its current orientation
      * @param yDeg number of degrees by which the camera will be rotated around the y-axis relative to its current orientation
      * @param zDeg number of degrees by which the camera will be rotated around the z axis relative to its current orientation
-     * @return
+     * @return this
      */
     public Camera rotate(double xDeg, double yDeg, double zDeg) {
         if (xDeg != 0) {
