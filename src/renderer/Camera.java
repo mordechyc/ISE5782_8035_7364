@@ -9,8 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
 
-import static primitives.Util.alignZero;
-import static primitives.Util.isZero;
+import static primitives.Util.*;
+import static primitives.Util.random;
 
 public class Camera {
 
@@ -25,14 +25,14 @@ public class Camera {
     private RayTracerBase rayTracer; // ray Tracer
 
     private int sampleNumber = 1; //Number of rays to send for single pixel
-
-    public static int adaptiveSSAA = 0; //Decides whether adaptive super sampling anti aliasing will be used to render the image. If yes value will be larger than zero.
+    public static boolean SSAA = true;   //Decides whether super sampling anti aliasing will be used to render the image
+    public static int adaptiveSSAA =0; //Decides whether adaptive super sampling anti aliasing will be used to render the image. If yes value will be larger than zero.
 
     private int MAX_DEPTH = 1; //Maximum depth for recursive function
 
     private int threadsCount = 0;
     private static final int SPARE_THREADS = 2; // Spare threads if trying to use all the cores
-    private boolean print = false; // printing progress percentage
+    private boolean print = true; // printing progress percentage
 
     /**
      * Set multi-threading <br>
@@ -62,7 +62,18 @@ public class Camera {
         print = true;
         return this;
     }
-
+    /**
+     * Enables supersampling anti aliasing
+     *
+     * @param num Number of samples to test
+     * @return Self with SSAA on
+     */
+    public Camera setSSAA(int num) {
+        SSAA = true;
+        //MAX_DEPTH = num;
+        sampleNumber=num;
+        return this;
+    }
     /**
      * Pixel is an internal helper class whose objects are associated with a Render
      * object that they are generated in scope of. It is used for multithreading in
@@ -332,7 +343,11 @@ public class Camera {
             }
 
         }
-
+        else if (SSAA) {
+            //Randomly choose a slight offset for location in pixel.
+            xOffset = random(-rX / 2, rX / 2);
+            yOffset = random(-rY / 2, rY / 2);
+        }
         //Set pIJ to correct value. It starts at center of view plane and will be moved to correct location in view plane
         if (xJ != 0) {
             pIJ = pIJ.add(vRight.scale(xJ + xOffset));
@@ -464,12 +479,60 @@ public class Camera {
             throw new UnsupportedOperationException("missing resources in order to create the image"
                     + e.getClassName());
         }
-        for (int i = 0; i < imageWriter.getNx(); i++) {
-            for (int j = 0; j < imageWriter.getNy(); j++) {
-                castRayAdaptive(imageWriter.getNx(), imageWriter.getNy(), i, j,4);
-            }
-        }
+        System.out.println(threadsCount);
+        //Renders the image
+        final int nX = imageWriter.getNx();
+        final int nY = imageWriter.getNy();
+        //for each pixel
+        if (threadsCount == 0)
+            for (int i = 0; i < nY; ++i)
+                for (int j = 0; j < nX; ++j)
+                {
+                    System.out.println(i+","+j);
+                    castRay(nX, nY, j, i);
+                }
+
+        else
+            renderImageThreaded();
         return this;
+    }
+
+    /**
+     * This function renders image's pixel color map from the scene included with
+     * the Renderer object - with multi-threading
+     */
+    private void renderImageThreaded() {
+        final int nX = imageWriter.getNx();
+        final int nY = imageWriter.getNy();
+        final Pixel thePixel = new Pixel(nY, nX);
+        // Generate threads
+        Thread[] threads = new Thread[threadsCount];
+        for (int i = threadsCount - 1; i >= 0; --i) {
+            threads[i] = new Thread(() -> {
+                Pixel pixel = new Pixel();
+                while (thePixel.nextPixel(pixel))
+                {
+                    System.out.println(pixel.col+","+pixel.row);
+                    castRay(nX, nY, pixel.col, pixel.row);
+                }
+            });
+        }
+        // Start threads
+        for (Thread thread : threads)
+            thread.start();
+
+        // Print percents on the console
+        thePixel.print();
+
+        // Ensure all threads have finished
+        for (Thread thread : threads)
+            try {
+                thread.join();
+            } catch (Exception e) {
+            }
+
+        if (print)
+            System.out.print("\r100%");
     }
 
     /**
@@ -480,6 +543,7 @@ public class Camera {
      * @param col pixel's column number (pixel index in row)
      * @param row pixel's row number (pixel index in column)
      */
+    /*
     private void castRay(int nX, int nY, int col, int row) {
         if(col==200 &&row==170)
         {
@@ -490,8 +554,46 @@ public class Camera {
         Ray ray = constructRayThroughPixel(nX, nY, col, row);
         pixelColor = rayTracer.traceRay(ray);
         imageWriter.writePixel(col, row, pixelColor);
-    }
+    }*/
+    /**
+     * Cast ray from camera in order to color a pixel
+     *
+     * @param nX  resolution on X axis (number of pixels in row)
+     * @param nY  resolution on Y axis (number of pixels in column)
+     * @param col pixel's column number (pixel index in row)
+     * @param row pixel's row number (pixel index in column)
+     */
+    private void castRay(int nX, int nY, int col, int row) {
 
+        //Set color to black
+        Color pixelColor = Color.BLACK;
+
+        //if adaptive super sampling is enabled
+        if (adaptiveSSAA > 0) {
+            pixelColor = castRayAdaptive(nX, nY, col, row, 0);
+        }
+
+        //else if super sampling anti aliasing is enabled
+        else if (SSAA) {
+            //for each sample
+            for (int c = 0; c < sampleNumber; c++) {
+                //create ray and send it through the pixel
+                Ray ray = constructRayThroughPixel(nX, nY, col, row);
+                //calculate ray color
+                pixelColor = pixelColor.add(rayTracer.traceRay(ray));
+            }
+            //find average color of all sampled rays
+            pixelColor = pixelColor.reduce(sampleNumber);
+        } else {
+            //create ray and send it through the pixel
+            Ray ray = constructRayThroughPixel(nX, nY, col, row);
+            //calculate ray color
+            pixelColor = rayTracer.traceRay(ray);
+
+        }
+        //save final color to image
+        imageWriter.writePixel(col, row, pixelColor);
+    }
     /**
      * Enables adaptive supersampling
      * @param num Sub sample depth
@@ -499,7 +601,8 @@ public class Camera {
      */
     public Camera setAdaptiveSSAA(int num) {
         adaptiveSSAA = 1;
-        sampleNumber = num;
+        //sampleNumber = num;
+        MAX_DEPTH=num;
         return this;
     }
 
@@ -515,7 +618,6 @@ public class Camera {
      */
     private Color castRayAdaptive(int nX, int nY, int col, int row, int depth) {
 
-        System.out.println(col+","+row);
 
         //Create list of colors
         List<Color> cornerColorList = new LinkedList<>();
@@ -526,6 +628,7 @@ public class Camera {
             //Create ray from camera to corner of pixel
             Ray ray = constructRayThroughPixel(nX, nY, col, row);
             //Calculate color and add it to color list
+            //            average = average.add(transparency(geoPoint,vector, ls ).reduce(list.size()));
             cornerColorList.add(rayTracer.traceRay(ray));
         }
 
@@ -553,10 +656,14 @@ public class Camera {
             return b;
 
         } else {
+            if(depth>1)
+            {
+                int x=1;
+            }
             //Create blank color
             Color average = Color.BLACK;
             //Add to blank color the color of all four sub squares using self to calculate the color of sub square
-            average = average.add(castRayAdaptive(nX * 2, nY * 2, col * 2, row * 2, depth + 1));//top left corner
+            average = average.add(castRayAdaptive(nX *2, nY * 2, col * 2, row * 2, depth + 1));//top left corner
             average = average.add(castRayAdaptive(nX * 2, nY * 2, col * 2 + 1, row * 2, depth + 1));//top right corner
             average = average.add(castRayAdaptive(nX * 2, nY * 2, col * 2 + 1, row * 2 + 1, depth + 1));//bottom right corner
             average = average.add(castRayAdaptive(nX * 2, nY * 2, col * 2, row * 2 + 1, depth + 1));//bottom left corner

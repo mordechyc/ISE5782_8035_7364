@@ -201,7 +201,8 @@ public class LightsTests {
 
 		ImageWriter imageWriter = new ImageWriter("lightPlanesPoint", 500, 500);
 		camera2.rotate(0,0,50).setImageWriter(imageWriter) //
-				.setRayTracer(new RayTracerBasic(scene2)) //
+				.setRayTracer(new RayTracerBasic(scene2)).setSSAA(3)
+				.setMultithreading(3) //
 				.renderImage() //
 				.writeToImage(); //
 	}

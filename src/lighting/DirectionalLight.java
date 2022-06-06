@@ -58,4 +58,10 @@ public class DirectionalLight extends Light implements LightSource {
     public List<Vector> getListL(Point p) {
         return List.of(getL(p));
     }
+    @Override
+    public Point getPosition() {
+        return null;
+    }
+    public double getRadius(){return Double.MAX_VALUE;}
+
 }
