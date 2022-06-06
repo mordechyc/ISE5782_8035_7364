@@ -7,7 +7,7 @@ public final class Main {
     /**
      * Main program.
      *
-     * @param args irrelevant here
+     * @param args irrelevant here.
      */
     public static void main(String[] args) {
 
