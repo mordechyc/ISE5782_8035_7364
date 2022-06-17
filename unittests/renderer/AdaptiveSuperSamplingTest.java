@@ -68,8 +68,6 @@ public class AdaptiveSuperSamplingTest {
                 .setMultithreading(3)
                 .setDebugPrint()
                 .setAdaptiveSSAA(7)
-                .setMultithreading(3)
-                .setDebugPrint()
         ;
         camera.setImageWriter(imageWriter);
         camera.renderImage();

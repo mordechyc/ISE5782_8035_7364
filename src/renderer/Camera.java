@@ -74,125 +74,6 @@ public class Camera {
         sampleNumber=num;
         return this;
     }
-    /**
-     * Pixel is an internal helper class whose objects are associated with a Render
-     * object that they are generated in scope of. It is used for multithreading in
-     * the Renderer and for follow up its progress.<br/>
-     * There is a main follow up object and several secondary objects - one in each
-     * thread.
-     *
-     * @author Dan
-     */
-    private class Pixel {
-        private long maxRows = 0;
-        private long maxCols = 0;
-        private long pixels = 0;
-        public volatile int row = 0;
-        public volatile int col = -1;
-        private long counter = 0;
-        private int percents = 0;
-        private long nextCounter = 0;
-
-        /**
-         * The constructor for initializing the main follow up Pixel object
-         *
-         * @param maxRows the amount of pixel rows
-         * @param maxCols the amount of pixel columns
-         */
-        public Pixel(int maxRows, int maxCols) {
-            this.maxRows = maxRows;
-            this.maxCols = maxCols;
-            this.pixels = (long) maxRows * maxCols;
-            this.nextCounter = this.pixels / 100;
-            if (Camera.this.print)
-                System.out.printf("\r %02d%%", this.percents);
-        }
-
-        /**
-         * Default constructor for secondary Pixel objects
-         */
-        public Pixel() {
-        }
-
-        /**
-         * Internal function for thread-safe manipulating of main follow up Pixel object
-         * - this function is critical section for all the threads, and main Pixel
-         * object data is the shared data of this critical section.<br/>
-         * The function provides next pixel number each call.
-         *
-         * @param target target secondary Pixel object to copy the row/column of the
-         *               next pixel
-         * @return the progress percentage for follow up: if it is 0 - nothing to print,
-         * if it is -1 - the task is finished, any other value - the progress
-         * percentage (only when it changes)
-         */
-        private synchronized int nextP(Pixel target) {
-            ++col;
-            ++this.counter;
-            if (col < this.maxCols) {
-                target.row = this.row;
-                target.col = this.col;
-                if (Camera.this.print && this.counter == this.nextCounter) {
-                    ++this.percents;
-                    this.nextCounter = this.pixels * (this.percents + 1) / 100;
-                    return this.percents;
-                }
-                return 0;
-            }
-            ++row;
-            if (row < this.maxRows) {
-                col = 0;
-                target.row = this.row;
-                target.col = this.col;
-                if (Camera.this.print && this.counter == this.nextCounter) {
-                    ++this.percents;
-                    this.nextCounter = this.pixels * (this.percents + 1) / 100;
-                    return this.percents;
-                }
-                return 0;
-            }
-            return -1;
-        }
-
-        /**
-         * Public function for getting next pixel number into secondary Pixel object.
-         * The function prints also progress percentage in the console window.
-         *
-         * @param target target secondary Pixel object to copy the row/column of the
-         *               next pixel
-         * @return true if the work still in progress, -1 if it's done
-         */
-        public boolean nextPixel(Pixel target) {
-            int percent = nextP(target);
-            if (Camera.this.print && percent > 0)
-                synchronized (this) {
-                    notifyAll();
-                }
-            if (percent >= 0)
-                return true;
-            if (Camera.this.print)
-                synchronized (this) {
-                    notifyAll();
-                }
-            return false;
-        }
-
-        /**
-         * Debug print of progress percentage - must be run from the main thread
-         */
-        public void print() {
-            if (Camera.this.print)
-                while (this.percents < 100)
-                    try {
-                        synchronized (this) {
-                            wait();
-                        }
-                        System.out.printf("\r %02d%%", this.percents);
-                        System.out.flush();
-                    } catch (Exception e) {
-                    }
-        }
-    }
 
     /**
      * Constructor that receives location, forward vector and up vector
@@ -484,14 +365,16 @@ public class Camera {
         final int nX = imageWriter.getNx();
         final int nY = imageWriter.getNy();
         //for each pixel
-        if (threadsCount == 0)
+        if (threadsCount == 0) {
+            Pixel.initialize(imageWriter.getNx(), imageWriter.getNy(), 1);
             for (int i = 0; i < nY; ++i)
-                for (int j = 0; j < nX; ++j)
-                {
-                    System.out.println(i+","+j);
+                for (int j = 0; j < nX; ++j) {
+                    // System.out.println(i+","+j); // print pixel without threads - not necessary
                     castRay(nX, nY, j, i);
+                    Pixel.pixelDone();
+                    Pixel.printPixel();
                 }
-
+        }
         else
             renderImageThreaded();
         return this;
@@ -501,60 +384,21 @@ public class Camera {
      * This function renders image's pixel color map from the scene included with
      * the Renderer object - with multi-threading
      */
+
     private void renderImageThreaded() {
-        final int nX = imageWriter.getNx();
-        final int nY = imageWriter.getNy();
-        final Pixel thePixel = new Pixel(nY, nX);
-        // Generate threads
-        Thread[] threads = new Thread[threadsCount];
-        for (int i = threadsCount - 1; i >= 0; --i) {
-            threads[i] = new Thread(() -> {
-                Pixel pixel = new Pixel();
-                while (thePixel.nextPixel(pixel))
-                {
-                    System.out.println(pixel.col+","+pixel.row);
-                    castRay(nX, nY, pixel.col, pixel.row);
-                }
-            });
+        Pixel.initialize(imageWriter.getNx(),imageWriter.getNy() , 1);
+        while (threadsCount-- > 0) {
+            new Thread(() -> {
+                for (Pixel pixel = new Pixel(); pixel.nextPixel(); Pixel.pixelDone())
+                    castRay(imageWriter.getNx(),imageWriter.getNy(), pixel.col, pixel.row);
+
+            }).start();
         }
-        // Start threads
-        for (Thread thread : threads)
-            thread.start();
+        renderer.Pixel.waitToFinish();
 
-        // Print percents on the console
-        thePixel.print();
 
-        // Ensure all threads have finished
-        for (Thread thread : threads)
-            try {
-                thread.join();
-            } catch (Exception e) {
-            }
-
-        if (print)
-            System.out.print("\r100%");
     }
 
-    /**
-     * Cast ray from camera in order to color a pixel
-     *
-     * @param nX  resolution on X axis (number of pixels in row)
-     * @param nY  resolution on Y axis (number of pixels in column)
-     * @param col pixel's column number (pixel index in row)
-     * @param row pixel's row number (pixel index in column)
-     */
-    /*
-    private void castRay(int nX, int nY, int col, int row) {
-        if(col==200 &&row==170)
-        {
-            int x=1;
-        }
-        System.out.println(col+","+row);
-        Color pixelColor;
-        Ray ray = constructRayThroughPixel(nX, nY, col, row);
-        pixelColor = rayTracer.traceRay(ray);
-        imageWriter.writePixel(col, row, pixelColor);
-    }*/
     /**
      * Cast ray from camera in order to color a pixel
      *
@@ -724,55 +568,6 @@ public class Camera {
         }
     }
 
-
-
-    //---------------------------------------------------------------------------------------------------------------------------------//
-/*
-    /**
-     * Rotate the camera by rotating the vectors of the camera directions <br/>
-     * According the Rodrigues' rotation formula
-     *
-     * @param theta angle theta according to the right hand rule in degrees
-     * @return this camera after the rotating
-     */
-  /*  public Camera rotateCamera(double theta) {
-        return rotateCamera(theta, vTo);
-    }*/
-/*
-    /**
-     * Rotate the camera by rotating the vectors of the camera directions <br/>
-     * According the Rodrigues' rotation formula
-     *
-     * @param theta angle theta according to the right hand rule in degrees
-     * @param k     axis vector for the rotation
-     * @return this camera after the rotating
-     */
-  /*  private Camera rotateCamera(double theta, Vector k) {
-        double radianAngle = Math.toRadians(theta);
-        double cosTheta = alignZero(Math.cos(radianAngle));
-        double sinTheta = alignZero(Math.sin(radianAngle));
-
-        vRight.rotateVector(k, cosTheta, sinTheta);
-        vUp.rotateVector(k, cosTheta, sinTheta);
-
-        return this;
-    }*/
-/*
-    public Camera moveCamera(Point newPosition, Point newPointOfView) {
-        // the new vTo of the camera
-        Vector new_vTo = newPointOfView.subtract(newPosition).normalize();
-        // the angle between the new vTo and the old
-        double theta = new_vTo.dotProduct(vTo);
-        // axis vector for the rotation
-        Vector k = vTo.crossProduct(new_vTo).normalize();
-
-        vTo = new_vTo;
-        p0 = newPosition;
-
-        return rotateCamera(theta, k);
-    }
-
-*/
     /**
      * Rotates the camera (pitch, tilt and yaw)
      *  @param xDeg number of degrees by which the camera will be rotated around the x-axis relative to its current orientation
@@ -834,3 +629,233 @@ public class Camera {
         return this;
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------------------//
+
+//    /**
+//     * Pixel is an internal helper class whose objects are associated with a Render
+//     * object that they are generated in scope of. It is used for multithreading in
+//     * the Renderer and for follow up its progress.<br/>
+//     * There is a main follow up object and several secondary objects - one in each
+//     * thread.
+//     *
+//     * @author Dan
+//     */
+//    private class Pixel {
+//        private long maxRows = 0;
+//        private long maxCols = 0;
+//        private long pixels = 0;
+//        public volatile int row = 0;
+//        public volatile int col = -1;
+//        private long counter = 0;
+//        private int percents = 0;
+//        private long nextCounter = 0;
+//
+//        /**
+//         * The constructor for initializing the main follow up Pixel object
+//         *
+//         * @param maxRows the amount of pixel rows
+//         * @param maxCols the amount of pixel columns
+//         */
+//        public Pixel(int maxRows, int maxCols) {
+//            this.maxRows = maxRows;
+//            this.maxCols = maxCols;
+//            this.pixels = (long) maxRows * maxCols;
+//            this.nextCounter = this.pixels / 100;
+//            if (Camera.this.print)
+//                System.out.printf("\r %02d%%", this.percents);
+//        }
+//
+//        /**
+//         * Default constructor for secondary Pixel objects
+//         */
+//        public Pixel() {
+//        }
+//
+//        /**
+//         * Internal function for thread-safe manipulating of main follow up Pixel object
+//         * - this function is critical section for all the threads, and main Pixel
+//         * object data is the shared data of this critical section.<br/>
+//         * The function provides next pixel number each call.
+//         *
+//         * @param target target secondary Pixel object to copy the row/column of the
+//         *               next pixel
+//         * @return the progress percentage for follow up: if it is 0 - nothing to print,
+//         * if it is -1 - the task is finished, any other value - the progress
+//         * percentage (only when it changes)
+//         */
+//        private synchronized int nextP(Pixel target) {
+//            ++col;
+//            ++this.counter;
+//            if (col < this.maxCols) {
+//                target.row = this.row;
+//                target.col = this.col;
+//                if (Camera.this.print && this.counter == this.nextCounter) {
+//                    ++this.percents;
+//                    this.nextCounter = this.pixels * (this.percents + 1) / 100;
+//                    return this.percents;
+//                }
+//                return 0;
+//            }
+//            ++row;
+//            if (row < this.maxRows) {
+//                col = 0;
+//                target.row = this.row;
+//                target.col = this.col;
+//                if (Camera.this.print && this.counter == this.nextCounter) {
+//                    ++this.percents;
+//                    this.nextCounter = this.pixels * (this.percents + 1) / 100;
+//                    return this.percents;
+//                }
+//                return 0;
+//            }
+//            return -1;
+//        }
+//
+//        /**
+//         * Public function for getting next pixel number into secondary Pixel object.
+//         * The function prints also progress percentage in the console window.
+//         *
+//         * @param target target secondary Pixel object to copy the row/column of the
+//         *               next pixel
+//         * @return true if the work still in progress, -1 if it's done
+//         */
+//        public boolean nextPixel(Pixel target) {
+//            int percent = nextP(target);
+//            if (Camera.this.print && percent > 0)
+//                synchronized (this) {
+//                    notifyAll();
+//                }
+//            if (percent >= 0)
+//                return true;
+//            if (Camera.this.print)
+//                synchronized (this) {
+//                    notifyAll();
+//                }
+//            return false;
+//        }
+//
+//        /**
+//         * Debug print of progress percentage - must be run from the main thread
+//         */
+//        public void print() {
+//            if (Camera.this.print)
+//                while (this.percents < 100)
+//                    try {
+//                        synchronized (this) {
+//                            wait();
+//                        }
+//                        System.out.printf("\r %02d%%", this.percents);
+//                        System.out.flush();
+//                    } catch (Exception e) {
+//                    }
+//        }
+//    }
+
+
+//    private void renderImageThreaded2() {
+//        final int nX = imageWriter.getNx();
+//        final int nY = imageWriter.getNy();
+//        final Pixel thePixel = new Pixel(nY, nX);
+// Generate threads
+//        Thread[] threads = new Thread[threadsCount];
+//        for (int i = threadsCount - 1; i >= 0; --i) {
+//            threads[i] = new Thread(() -> {
+//                Pixel pixel = new Pixel();
+//                while (thePixel.nextPixel(pixel))
+//                {
+//                    System.out.println(pixel.col+","+pixel.row);
+//                    castRay(nX, nY, pixel.col, pixel.row);
+//                }
+//            });
+//        }
+//        // Start threads
+//        for (Thread thread : threads)
+//            thread.start();
+//
+//        // Print percents on the console
+//        thePixel.print();
+//
+//        // Ensure all threads have finished
+//        for (Thread thread : threads)
+//            try {
+//                thread.join();
+//            } catch (Exception e) {
+//            }
+//
+//        if (print)
+//            System.out.print("\r100%");
+//    }
+
+
+
+
+//-----------------------------------------------------------------------------------------------------------------//
+/*
+    /**
+     * Rotate the camera by rotating the vectors of the camera directions <br/>
+     * According the Rodrigues' rotation formula
+     *
+     * @param theta angle theta according to the right hand rule in degrees
+     * @return this camera after the rotating
+     */
+  /*  public Camera rotateCamera(double theta) {
+        return rotateCamera(theta, vTo);
+    }*/
+/*
+    /**
+     * Rotate the camera by rotating the vectors of the camera directions <br/>
+     * According the Rodrigues' rotation formula
+     *
+     * @param theta angle theta according to the right hand rule in degrees
+     * @param k     axis vector for the rotation
+     * @return this camera after the rotating
+     */
+  /*  private Camera rotateCamera(double theta, Vector k) {
+        double radianAngle = Math.toRadians(theta);
+        double cosTheta = alignZero(Math.cos(radianAngle));
+        double sinTheta = alignZero(Math.sin(radianAngle));
+
+        vRight.rotateVector(k, cosTheta, sinTheta);
+        vUp.rotateVector(k, cosTheta, sinTheta);
+
+        return this;
+    }*/
+/*
+    public Camera moveCamera(Point newPosition, Point newPointOfView) {
+        // the new vTo of the camera
+        Vector new_vTo = newPointOfView.subtract(newPosition).normalize();
+        // the angle between the new vTo and the old
+        double theta = new_vTo.dotProduct(vTo);
+        // axis vector for the rotation
+        Vector k = vTo.crossProduct(new_vTo).normalize();
+
+        vTo = new_vTo;
+        p0 = newPosition;
+
+        return rotateCamera(theta, k);
+    }
+
+*/
+
+///**
+// * Cast ray from camera in order to color a pixel
+// *
+// * @param nX  resolution on X axis (number of pixels in row)
+// * @param nY  resolution on Y axis (number of pixels in column)
+// * @param col pixel's column number (pixel index in row)
+// * @param row pixel's row number (pixel index in column)
+// */
+    /*
+    private void castRay(int nX, int nY, int col, int row) {
+        if(col==200 &&row==170)
+        {
+            int x=1;
+        }
+        System.out.println(col+","+row);
+        Color pixelColor;
+        Ray ray = constructRayThroughPixel(nX, nY, col, row);
+        pixelColor = rayTracer.traceRay(ray);
+        imageWriter.writePixel(col, row, pixelColor);
+    }*/
